@@ -34,7 +34,7 @@ module.exports = {
             {"single_parent_yes": "Yes"},
             {"single_parent_no": "No"}
           ]
-        },checkgroup
+        },
         {
           "type": "checkgroup",
           "cond": "has_children_yes",
