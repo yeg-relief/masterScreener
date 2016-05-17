@@ -36,7 +36,7 @@ module.exports = {
           ]
         },
         {
-          "type": "checkgroup",
+          "type": "radiogroup",
           "cond": "has_children_yes",
           "text": "How many children under 18 do you have?",
           "defaultChoice": false,
