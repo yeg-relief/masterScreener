@@ -1,8 +1,11 @@
-const utils = require('./utils');
+const
+utils = require('./utils'),
+modelIndex = require('./models/index');
 
 module.exports = {
   testConnect,
-  initIndex
+  initIndex,
+  initMasterMapping
 };
 
 /*
@@ -40,27 +43,19 @@ function initIndex(elasticClient, indexName) {
         });
 }
 
-
-/*
-const mapping = {
-  index: indexName,
-  type: 'screenData',
-  body: {
-    properties: {
-      "age": {type: integer},
-      "income": {type: integer},
-      "AISH": {type: boolean},
-      "treaty_status": {type: boolean},
-      "children": {type: integer},
-      "number_of_children": {type: integer},
-      "primary_care_giver": {type: boolean},
-      "candian_resident": {type: boolean},
-      "plastic_health_benefits": {type: boolean},
-      "child_govt_care": {type:boolean},
-      "uses_licensed_child_care": {type:boolean},
-      "children_12_or_younger": {type:boolean},
-
-    }
-  }
+function initMasterMapping(elasticClient, indexName, typeName) {
+  const mapping = modelIndex.generateMasterMapping(modelIndex.gatherScreenerMappings());
+  utils.mappingExists(elasticClient, indexName, typeName)
+       .then( exists => {
+         console.log('**************');
+         console.log(exists);
+         console.log('**************');
+         if (exists) {
+           console.log(`${indexName} has ${typeName} already defined`);
+           utils.initMapping(elasticClient, indexName, typeName, mapping);
+         } else {
+           console.log(`defining ${typeName} on ${indexName}`);
+           utils.initMapping(elasticClient, indexName, typeName, mapping);
+         }
+       })
 }
-*/
