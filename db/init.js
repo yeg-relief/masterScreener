@@ -3,9 +3,7 @@ utils = require('./utils'),
 modelIndex = require('./models/index');
 
 module.exports = {
-  testConnect,
-  initIndex,
-  initMasterMapping
+  initDB
 };
 
 /*
@@ -55,4 +53,11 @@ function initMasterMapping(elasticClient, indexName, typeName) {
            utils.initMapping(elasticClient, indexName, typeName, mapping);
          }
        })
+}
+
+
+function initDB(config) {
+  testConnect(config.client);
+  initIndex(config.client, config.masterIndex);
+  initMasterMapping(config.client, config.masterIndex, config.masterTypeName);
 }

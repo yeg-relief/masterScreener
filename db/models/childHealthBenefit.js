@@ -11,6 +11,8 @@ const screenerMappings = {
 }
 
 const screener = Object.assign({}, {screenerName: screenerName}, {screenerMappings: screenerMappings});
+const query = Object.assign({})
+
 
 module.exports = {
   screener

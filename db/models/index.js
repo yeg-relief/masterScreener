@@ -13,14 +13,10 @@ module.exports = {
   @param {Array[Object]} screeners - An array containing all the individual screeners.
   @return {Object}
  */
-
 function generateMasterMapping(screeners) {
   let masterMapping = {};
   console.log(screeners);
   screeners.forEach((element, index, array) => {
-    console.log(masterMapping);
-    console.log(element.screenerMappings);
-    console.log(element.screenerName);
     utils.addMappings(masterMapping, element.screenerMappings, element.screenerName);
   });
   return masterMapping;
@@ -35,4 +31,13 @@ function gatherScreenerMappings() {
   let mappings = [];
   mappings.push(childHealthBenefit.screener);
   return mappings;
+}
+
+/**
+  returns an array of queries that will be used to populate the percolators on
+  the master index.
+  @return {Array[Object]} 
+ */
+function gatherQueries() {
+
 }

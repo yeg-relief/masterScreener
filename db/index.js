@@ -8,9 +8,11 @@ module.exports = {
   models
 }
 
-init.testConnect(client);
-// create index if not exist
-const indexName = 'master_screener';
-init.initIndex(client, indexName);
-const typeName = 'master';
-init.initMasterMapping(client, indexName, typeName);
+const config = {
+  client: client,
+  masterIndex: 'master_screener',
+  masterTypeName: 'master'
+}
+
+// initialize the database
+init.initDB(config);

@@ -3,7 +3,8 @@ module.exports = {
   initIndex,
   indexExists,
   initMapping,
-  mappingExists
+  mappingExists,
+  addPercolator
 }
 
 
@@ -39,5 +40,16 @@ function mappingExists(elasticClient, indexName, typeName) {
   return elasticClient.indices.existsType({
     index: indexName,
     type: typeName
+  });
+}
+
+function addPercolator(elasticClient, indexName, id, query) {
+  return elasticClient.index({
+    index: indexName,
+    type: '.percolator',
+    id: id,
+    body: {
+      query
+    }
   });
 }
