@@ -1,5 +1,6 @@
 'use strict';
 const
+assert = require('chai').assert,
 expect = require('chai').expect,
 utils  = require('./utils');
 
@@ -16,21 +17,51 @@ describe('addMappings', function() {
     http://stackoverflow.com/questions/19097067/chai-expecting-an-error-or-not-depending-on-a-parameter/19150023#19150023
    */
   it('should thow an error if there is a mapping collision involving different types', function() {
-    const masterProp = {type: "boolean"};
-    const screenerProp = {type: "string"};
-    const screenerMapping = {fieldOne: screenerProp};
-    const masterMapping = {fieldOne: masterProp};
-    const screenerName = "badScreener";
-    const propName = "fieldOne";
+    const
+    masterProp = {type: "boolean"},
+    screenerProp = {type: "string"},
+    screenerMapping = Object.assign({},{fieldOne: screenerProp}),
+    masterMapping = Object.assign({},{fieldOne: masterProp}),
+    screenerName = "badScreener",
+    errorString = utils.propMultTypeError(masterMapping, screenerMapping, screenerName);
 
     expect(function() {
       utils.addMappings(masterMapping, screenerMapping, screenerName);
-    }).to.throw(`
-    Error in screener: ${screenerName},
-    master screener has prop: ${propName},
-    with type: ${masterProp.type},
-    ${screenerName} has prop: ${propName},
-    with type: ${screenerProp.type}
-    `);
-  })
+    }).to.throw(errorString);
+  });
+
+  it('should not throw an error for a mapping collision of same type', function() {
+    const
+    masterProp = {type: "boolean"},
+    screenerProp = {type: "boolean"},
+    screenerMapping = Object.assign({},{fieldOne: screenerProp}),
+    masterMapping = Object.assign({},{fieldOne: masterProp}),
+    screenerName = "goodScreener";
+
+    // ensure no error is thown
+    expect(function() {
+      utils.addMappings(masterMapping, screenerMapping, screenerName);
+    }).to.not.throw();
+    // ensure that the master mapping did not change
+    const expectedMasterMapping = Object.assign({}, masterMapping);
+    assert.deepEqual(expectedMasterMapping, masterMapping);
+  });
+
+  it('if master does not have a mapping in the screener, this mapping should be added to master', function(){
+    const
+    masterProp = {type: "boolean"},
+    screenerProp = {type: "boolean"},
+    screenerMapping = Object.assign({},{fieldTwo: screenerProp}),
+    screenerName = "goodScreener";
+
+    let masterMapping = Object.assign({},{fieldOne: masterProp});
+
+    // ensure no error is thown
+    expect(function() {
+      utils.addMappings(masterMapping, screenerMapping, screenerName);
+    }).to.not.throw();
+
+    const expectedMasterMapping = Object.assign({}, screenerMapping, masterMapping);
+    assert.deepEqual(expectedMasterMapping, masterMapping);
+  });
 });
