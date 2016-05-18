@@ -47,9 +47,6 @@ function initMasterMapping(elasticClient, indexName, typeName) {
   const mapping = modelIndex.generateMasterMapping(modelIndex.gatherScreenerMappings());
   utils.mappingExists(elasticClient, indexName, typeName)
        .then( exists => {
-         console.log('**************');
-         console.log(exists);
-         console.log('**************');
          if (exists) {
            console.log(`${indexName} has ${typeName} already defined`);
            utils.initMapping(elasticClient, indexName, typeName, mapping);
