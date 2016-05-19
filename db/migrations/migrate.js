@@ -86,6 +86,7 @@ function initPercolators(elasticClient, indexName) {
 
 /**
   Executes a chain of promises to initialize the Elasticsearch backend.
+  TODO: should I close the client after or just let the program exit?
   @param {Object} config - contains Elasticsearch client along with type + index names (strings)
  */
 function initDB(config) {
