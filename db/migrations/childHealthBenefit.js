@@ -1,7 +1,7 @@
 const screenerName = 'Child Health Benefit';
 
 /**
-  these are the objects that are required for the mappings in the
+  these are the objects that are required for the master_screener mappings w.r.t.
   childHealthBenefit.
  */
 const screenerMappings = {
