@@ -5,7 +5,8 @@ errors             = require('./errors');
 
 module.exports = {
   generateMasterMapping,
-  gatherScreenerMappings
+  gatherScreenerMappings,
+  gatherQueries
 }
 
 /**
@@ -15,7 +16,6 @@ module.exports = {
  */
 function generateMasterMapping(screeners) {
   let masterMapping = {};
-  console.log(screeners);
   screeners.forEach((element, index, array) => {
     utils.addMappings(masterMapping, element.screenerMappings, element.screenerName);
   });
@@ -36,8 +36,11 @@ function gatherScreenerMappings() {
 /**
   returns an array of queries that will be used to populate the percolators on
   the master index.
-  @return {Array[Object]} 
+  @return {Array[Object]}
  */
 function gatherQueries() {
-
+  let queries = [];
+  queries.push(childHealthBenefit.queries);
+  // http://stackoverflow.com/a/10865042/764384
+  return [].concat.apply([], queries);
 }

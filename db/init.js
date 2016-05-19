@@ -10,19 +10,22 @@ module.exports = {
   test connection
  */
 function testConnect(elasticClient) {
-  elasticClient.ping({
-    // ping usually has a 3000ms timeout
-    requestTimeout: Infinity,
-    // undocumented params are appended to the query string
-    hello: "elasticsearch!"
-  }, function (error) {
-    if (error) {
-      throw Error('Elasticsearch Client unable to ping cluster on localhost');
-    } else {
-      console.log('Elasticsearch Client can connect');
+  return new Promise(
+    (resolve, reject) => {
+        elasticClient.ping({
+        // ping usually has a 3000ms timeout
+        requestTimeout: Infinity,
+        // undocumented params are appended to the query string
+        hello: "elasticsearch!"
+      }, function (error) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(console.log('Elasticsearch Client can connect'));
+        }
+      });
     }
-  });
-  return true;
+  );
 }
 
 
@@ -30,34 +33,40 @@ function testConnect(elasticClient) {
   create index -- if not exists
  */
 function initIndex(elasticClient, indexName) {
-  utils.indexExists(elasticClient, indexName)
-       .then( exists => {
-          if (exists) {
-            console.log(`${indexName} already exists`);
-          } else {
-            console.log(`creating index ${indexName}`);
-            utils.initIndex(elasticClient, indexName);
-          }
-        });
+  return new Promise(
+    resolve => {
+      utils.indexExists(elasticClient, indexName)
+      .then( exists => {
+        if(!exists) {
+          resolve(utils.initIndex(elasticClient, indexName));
+        } else {
+          resolve(console.log(`${indexName} already exists.`))
+        }
+      });
+    }
+  );
 }
 
 function initMasterMapping(elasticClient, indexName, typeName) {
   const mapping = modelIndex.generateMasterMapping(modelIndex.gatherScreenerMappings());
-  utils.mappingExists(elasticClient, indexName, typeName)
-       .then( exists => {
-         if (exists) {
-           console.log(`${indexName} has ${typeName} already defined`);
-           utils.initMapping(elasticClient, indexName, typeName, mapping);
-         } else {
-           console.log(`defining ${typeName} on ${indexName}`);
-           utils.initMapping(elasticClient, indexName, typeName, mapping);
-         }
-       })
+  return utils.initMapping(elasticClient, indexName, typeName, mapping);
+}
+
+function initPercolators(elasticClient, indexName) {
+  const queries = modelIndex.gatherQueries();
+  console.log(queries);
+  let percolators = [];
+  queries.forEach((element, index, array) => {
+    console.log(element.query);
+    percolators.push(utils.addPercolator(elasticClient, indexName, element.id, element.query));
+  });
+  return Promise.all(percolators);
 }
 
 
 function initDB(config) {
-  testConnect(config.client);
-  initIndex(config.client, config.masterIndex);
-  initMasterMapping(config.client, config.masterIndex, config.masterTypeName);
+  testConnect(config.client)
+  .then(initIndex(config.client, config.masterIndex))
+  .then(initMasterMapping(config.client, config.masterIndex, config.masterTypeName))
+  .then(initPercolators(config.client, config.masterIndex));
 }
