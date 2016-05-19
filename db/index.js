@@ -15,4 +15,6 @@ const config = {
 }
 
 // initialize the database
+// TODO: define some logic such that the datstore is initialized or not
+// ie, we don't need to initialize the datastore everytime. 
 init.initDB(config);

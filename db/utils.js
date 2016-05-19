@@ -7,6 +7,9 @@ module.exports = {
   addPercolator
 }
 
+/*
+  Function names are self-describing.
+*/
 
 function deleteIndex(elasticClient, indexName) {
   return elasticClient.indices.delete({

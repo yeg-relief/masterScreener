@@ -19,6 +19,13 @@ module.exports = {
   queries
 }
 
+/**
+  https://drive.google.com/open?id=0B3DMBJXZKmZ5UHhXVWhDWk9JWEU
+  Alberta Child Health Benefit
+  notice there are multiple queries that must be stored.
+  TODO: consider how many queries to construct, ie "*for each additional child add $4793"
+  @return {Array[Object]}
+ */
 function generateQueries(){
   const singleOneChild =
   {
