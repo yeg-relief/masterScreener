@@ -4,7 +4,8 @@ module.exports = {
   indexExists,
   initMapping,
   mappingExists,
-  addPercolator
+  addPercolator,
+  percolateDocument
 }
 
 /*
@@ -53,6 +54,16 @@ function addPercolator(elasticClient, indexName, id, query) {
     id: id,
     body: {
       query
+    }
+  });
+}
+
+function percolateDocument(elasticClient, indexName, typeName, doc) {
+  return elasticClient.percolate({
+    index: indexName,
+    type: typeName,
+    body: {
+      doc
     }
   });
 }
