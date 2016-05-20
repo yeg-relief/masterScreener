@@ -6,7 +6,7 @@
 })();
 
 var loadData = function() {
-  vsaq.qpageObject_.loadQuestionnaire("test");
+  vsaq.qpageObject_.loadQuestionnaire("masterScreener");
 }
 
 var submitListener = function() {
@@ -14,7 +14,7 @@ var submitListener = function() {
   goog.events.listen(sub_btn,goog.events.EventType.CLICK,
     function() {
       var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
-      xmlhttp.open("POST", "/submit_handler");
+      xmlhttp.open("POST", "/masterSubmit");
       xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       xmlhttp.send(vsaq.qpageObject_.questionnaire.getValuesAsJson());
     }
