@@ -48,16 +48,8 @@ function masterSubmit(req, res) {
   models.screenSubmission(transformedReq, client)
   .then(
     resp => {
-      return Promise.resolve(resp.matches);
-    },
-    error => {
-      return Promise.reject(error);
-    }
-  )
-  .then(
-    matches => {
       let descriptions = [];
-      matches.forEach( e => {
+      resp.matches.forEach( e => {
         models.matchResponse(e._id, descriptions);
       })
       res.status(200);
