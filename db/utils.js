@@ -11,7 +11,6 @@ module.exports = {
 /*
   Function names are self-describing.
 */
->>>>>>> backend
 
 function deleteIndex(elasticClient, indexName) {
   return elasticClient.indices.delete({
