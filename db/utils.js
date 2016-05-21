@@ -3,9 +3,15 @@ module.exports = {
   initIndex,
   indexExists,
   initMapping,
-  mappingExists
+  mappingExists,
+  addPercolator,
+  percolateDocument
 }
 
+/*
+  Function names are self-describing.
+*/
+>>>>>>> backend
 
 function deleteIndex(elasticClient, indexName) {
   return elasticClient.indices.delete({
@@ -39,5 +45,26 @@ function mappingExists(elasticClient, indexName, typeName) {
   return elasticClient.indices.existsType({
     index: indexName,
     type: typeName
+  });
+}
+
+function addPercolator(elasticClient, indexName, id, query) {
+  return elasticClient.index({
+    index: indexName,
+    type: '.percolator',
+    id: id,
+    body: {
+      query
+    }
+  });
+}
+
+function percolateDocument(elasticClient, indexName, typeName, doc) {
+  return elasticClient.percolate({
+    index: indexName,
+    type: typeName,
+    body: {
+      doc
+    }
   });
 }

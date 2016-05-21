@@ -1,0 +1,18 @@
+A selection of queries that I have found of use. 
+
+
+curl -XGET 'localhost:9200/master_screener/master/_percolate' -d '{
+    "doc" : {
+        "children" : true,
+        "numChildren" : 1,
+        "commonLaw" : false,
+        "income": 26023
+    }
+}'
+
+curl -XGET 'localhost:9200/master_screener/_search?search_type=scan&scroll=10m&size=50' -d '
+{
+    "query" : {
+        "match_all" : {}
+    }
+}'
