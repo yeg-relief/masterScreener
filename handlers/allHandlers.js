@@ -41,8 +41,6 @@ function masterSubmit(req, res) {
       ]
     };
   }
-
-
   res.setHeader('Content-Type', 'application/json');
   const transformedReq = models.scrubber.scrub(req.body);
   models.screenSubmission(transformedReq, client)
