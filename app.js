@@ -13,5 +13,5 @@ app.post('/masterSubmit', handlers.masterSubmit)
 
 const port = 3000;
 app.listen(port, "0.0.0.0", function () {
-  console.log(` http://localhost:${port}/`);
+  console.log(`http://localhost:${port}/`);
 });
