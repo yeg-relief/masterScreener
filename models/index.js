@@ -1,7 +1,7 @@
 const
 scrubber            = require('./submitScrubber'),
 utils               = require('../db/utils'),
-childHealthBenefit  = require('./childHealthBenefit').description,
+childHBmatcher      = require('./childHealthBenefit').matcher,
 masterScreener      = require('./masterScreener').questionaire;
 
 /*
@@ -12,9 +12,9 @@ masterScreener      = require('./masterScreener').questionaire;
 */
 module.exports = {
   scrubber,
-  childHealthBenefit,
   screenSubmission,
-  masterScreener
+  masterScreener,
+  matchResponse
 }
 
 /**
@@ -23,26 +23,38 @@ module.exports = {
   @param {Object} clientSubmission - A submission from the client expected to be for masterScreener at this point
   @param {Object} elasticClient - driver for elasticsearch
   @return {Object}
- */
+*/
 function screenSubmission(clientSubmission, elasticClient) {
   return utils.percolateDocument(elasticClient, 'master_screener', 'master', clientSubmission);
 }
 
-// hacky test code incoming
-/*
-const x = scrubber.scrub({ income: '15000',
-                           commonLaw: 'checked',
-                           children: 'checked',
-                           children_no: '',
-                           numChildren: '4' });
+const matcher = buildMatcher();
+function buildMatcher() {
+  matchAll = Object.create(null);
+  Object.assign(matchAll, childHBmatcher);
+  return matchAll;
+}
 
-const
-elasticsearch = require('elasticsearch'),
-client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'});
-
-screenSubmission(x, client)
-.then(
-  resp => {console.log(resp)},
-  err => {console.log(err)}
-)
+/**
+  After the client submission has been run against the percolators we need
+  to respond to the matches. We will use an object literal in order to push the
+  appropriate object into an items array. The items array will be used to construct
+  a vsaq questionaire.
+  reference: https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/
+  @param {string} id - the id from the match.id field elasticSearch response
+  @param {Array[Object]} items - an array of vsaq "tip" objects used to render server response on client
 */
+function matchResponse(id, items) {
+  const descr = matcher[id](items);
+  // ensure we don't push duplicates
+  // TODO: evaluate if this is overly cautious
+  if(items.length === 0) {
+    items.push(descr);
+  } else {
+    items.forEach( e => {
+      if (e.id !== descr.id) {
+        items.push(descr);
+      }
+    });
+  }
+}
