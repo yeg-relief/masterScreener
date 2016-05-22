@@ -1,3 +1,6 @@
+/*
+  fairly brittle webpack configuration, but it get's the job done.
+*/
 module.exports = {
   context: __dirname + "/app",
   entry: "./app",
@@ -9,11 +12,9 @@ module.exports = {
     loaders: [
       {
         test: /\.js?$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel', // 'babel-loader' is also a legal name to reference
-        query: {
-          presets: ['es2015']
-        }
+        exclude: /(node_modules)/,
+        loaders: ['babel?cacheDirectory'],
+        include: __dirname + "/app"
       }
     ]
   }

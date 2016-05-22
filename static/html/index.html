@@ -74,29 +74,7 @@
     <div id="vsaq-dialogs"></div>
     <script src="static/js/maia.js"></script>
     <script src="static/js/vsaq_binary.js"></script>
-    <script>
-      (function () {
-        document.addEventListener("DOMContentLoaded", function(event) {
-          loadData();
-          submitListener();
-        });
-        var loadData = function() {
-          vsaq.qpageObject_.loadQuestionnaire("masterScreener");
-        }
-
-        var submitListener = function() {
-          var sub_btn = goog.dom.getElement('_vsaq_submit_questionnaire');
-          goog.events.listen(sub_btn,goog.events.EventType.CLICK,
-            function() {
-              var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
-              xmlhttp.open("POST", "/masterSubmit");
-              xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-              xmlhttp.send(vsaq.qpageObject_.questionnaire.getValuesAsJson());
-            }
-          );
-        }
-      })();
-    </script>
+    <script src="static/js/bundle.js"></script>
   </div>
 </div>
 

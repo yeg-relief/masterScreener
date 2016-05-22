@@ -13,8 +13,7 @@
   "dependencies": {
     "body-parser": "^1.15.1",
     "elasticsearch": "^11.0.1",
-    "express": "^4.13.4",
-    "rxjs-es": "^5.0.0-beta.7"
+    "express": "^4.13.4"
   },
   "devDependencies": {
     "babel-core": "^6.9.0",
