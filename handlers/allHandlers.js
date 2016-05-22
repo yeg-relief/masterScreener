@@ -49,9 +49,10 @@ function masterSubmit(req, res) {
       let descriptions = [];
       resp.matches.forEach( e => {
         models.matchResponse(e._id, descriptions);
-      })
+      });
       res.status(200);
-      res.send(template(descriptions));
+      const response = template(descriptions);
+      res.send(response);
     },
     error => {
       res.status(500);
