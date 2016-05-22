@@ -21,11 +21,12 @@ const submitSub = submitBtn.subscribe( () => {
       'Content-Type': 'application/json'
     },
     body: vsaq.qpageObject_.questionnaire.getValuesAsJson(),
-    resultSelector: function (res) { return res.response.questionnaire[0]; }
+    resultSelector: function (res) { return res.response.questionnaire; }
   };
   Observable
   .ajax(obj)
   .subscribe( x => {
-    console.log(x);
+    vsaq.qpageObject_.questionnaire.setTemplate(x);
+    vsaq.qpageObject_.questionnaire.render();
   });
 });
