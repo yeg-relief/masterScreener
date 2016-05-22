@@ -1,20 +1,18 @@
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/dom/ajax';
-import {AsyncSubject} from 'rxjs/AsyncSubject';
 
-const
-ready       = Observable.fromEvent(document, 'DOMContentLoaded'),
-submitBtn   = Observable.fromEvent(goog.dom.getElement('_vsaq_submit_questionnaire'),
-                goog.events.EventType.CLICK);
+let masterTemplate;
 
-
-const readySub = ready.subscribe( () => {
+Observable.fromEvent(document, 'DOMContentLoaded')
+.subscribe( () => {
   vsaq.qpageObject_.loadQuestionnaire("masterScreener");
-  readySub.unsubscribe();
 });
-const submitSub = submitBtn.subscribe( () => {
-  var obj = {
+
+Observable.fromEvent(goog.dom.getElement('_vsaq_submit_questionnaire'),
+                      goog.events.EventType.CLICK)
+.subscribe( () => {
+  const ajaxSettings = {
     url: '/masterSubmit',
     method: 'POST',
     headers: {
@@ -24,9 +22,43 @@ const submitSub = submitBtn.subscribe( () => {
     resultSelector: function (res) { return res.response.questionnaire; }
   };
   Observable
-  .ajax(obj)
+  .ajax(ajaxSettings)
   .subscribe( x => {
+    masterTemplate = vsaq.qpageObject_.questionnaire.getTemplate();
     vsaq.qpageObject_.questionnaire.setTemplate(x);
     vsaq.qpageObject_.questionnaire.render();
+    hideMasterButtons();
+    setUpReturn();
   });
 });
+
+Observable.fromEvent(document.getElementById('return_to_master'), 'click')
+.subscribe( () => {
+  if (!masterTemplate) {
+    alert('masterTemplate is falsey');
+    console.log(`masterTemplate: \n ${masterTemplate}`);
+  } else {
+    vsaq.qpageObject_.questionnaire.setTemplate(masterTemplate);
+    // Load answers from localStorage (if available).
+    const storageData = vsaq.qpageObject_.readStorage_();
+    if (storageData) {
+      vsaq.qpageObject_.questionnaire.setValues(goog.json.parse(storageData));
+    }
+    vsaq.qpageObject_.questionnaire.render();
+    showMasterButtons();
+  }
+})
+
+const hideMasterButtons = () => {
+  goog.dom.getElement('_vsaq_submit_questionnaire').setAttribute("style", "display:none;");
+  goog.dom.getElement('_vsaq_clear_questionnaire').setAttribute("style", "display:none;");
+}
+
+const showMasterButtons = () => {
+  goog.dom.getElement('_vsaq_submit_questionnaire').setAttribute("style", "display:;");
+  goog.dom.getElement('_vsaq_clear_questionnaire').setAttribute("style", "display:;");
+}
+
+const setUpReturn = () => {
+  document.getElementById('return_to_master').setAttribute("style", "display:");
+}
