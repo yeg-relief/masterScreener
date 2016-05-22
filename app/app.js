@@ -3,14 +3,19 @@ import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/dom/ajax';
 
 let masterTemplate;
+const
+submitBtn  = document.getElementById('_vsaq_submit_questionnaire'),
+clearBtn   = document.getElementById('_vsaq_clear_questionnaire'),
+returnBtn  = document.getElementById('return_to_master'),
+masterBtns = [submitBtn, clearBtn],
+resultBtns = [returnBtn];
 
 Observable.fromEvent(document, 'DOMContentLoaded')
 .subscribe( () => {
   vsaq.qpageObject_.loadQuestionnaire("masterScreener");
 });
 
-Observable.fromEvent(goog.dom.getElement('_vsaq_submit_questionnaire'),
-                      goog.events.EventType.CLICK)
+Observable.fromEvent(submitBtn, 'click')
 .subscribe( () => {
   const ajaxSettings = {
     url: '/masterSubmit',
@@ -27,12 +32,11 @@ Observable.fromEvent(goog.dom.getElement('_vsaq_submit_questionnaire'),
     masterTemplate = vsaq.qpageObject_.questionnaire.getTemplate();
     vsaq.qpageObject_.questionnaire.setTemplate(x);
     vsaq.qpageObject_.questionnaire.render();
-    hideMasterButtons();
-    setUpReturn();
+    toggleUiBtns();
   });
 });
 
-Observable.fromEvent(document.getElementById('return_to_master'), 'click')
+Observable.fromEvent(returnBtn, 'click')
 .subscribe( () => {
   if (!masterTemplate) {
     alert('masterTemplate is falsey');
@@ -45,20 +49,17 @@ Observable.fromEvent(document.getElementById('return_to_master'), 'click')
       vsaq.qpageObject_.questionnaire.setValues(goog.json.parse(storageData));
     }
     vsaq.qpageObject_.questionnaire.render();
-    showMasterButtons();
+    toggleUiBtns();
   }
 })
 
-const hideMasterButtons = () => {
-  goog.dom.getElement('_vsaq_submit_questionnaire').setAttribute("style", "display:none;");
-  goog.dom.getElement('_vsaq_clear_questionnaire').setAttribute("style", "display:none;");
+const toggleUiBtns = () => {
+  toggleButtons(masterBtns);
+  toggleButtons(resultBtns);
 }
 
-const showMasterButtons = () => {
-  goog.dom.getElement('_vsaq_submit_questionnaire').setAttribute("style", "display:;");
-  goog.dom.getElement('_vsaq_clear_questionnaire').setAttribute("style", "display:;");
-}
-
-const setUpReturn = () => {
-  document.getElementById('return_to_master').setAttribute("style", "display:");
+const toggleButtons = btns => {
+  btns.forEach(e => {
+    e.style.display =  e.style.display === 'none' ? '' : 'none';
+  });
 }
