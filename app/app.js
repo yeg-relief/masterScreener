@@ -19,10 +19,7 @@ const netCall = () => {
   const answers = vsaq.qpageObject_.questionnaire.getValuesAsJson();
   if (cache[answers]) {
     console.log(`from cached answer`);
-    cache['masterTemplate'] = vsaq.qpageObject_.questionnaire.getTemplate();
-    vsaq.qpageObject_.questionnaire.setTemplate(cache[answers]);
-    vsaq.qpageObject_.questionnaire.render();
-    toggleUiBtns();
+    goToResults(cache[answers]);
     return;
   }
   const ajaxSettings = {
@@ -38,14 +35,17 @@ const netCall = () => {
     .ajax(ajaxSettings)
     .subscribe( res => {
       console.log(`from network call`);
-      cache['masterTemplate'] = vsaq.qpageObject_.questionnaire.getTemplate();
-      vsaq.qpageObject_.questionnaire.setTemplate(res);
-      vsaq.qpageObject_.questionnaire.render();
-      toggleUiBtns();
+      goToResults(res);
       cache[answers] = res;
     });
 }
 
+const goToResults = (res) => {
+  cache['masterTemplate'] = vsaq.qpageObject_.questionnaire.getTemplate();
+  vsaq.qpageObject_.questionnaire.setTemplate(res);
+  vsaq.qpageObject_.questionnaire.render();
+  toggleUiBtns();
+}
 
 Observable.fromEvent(submitBtn, 'click')
 .subscribe( () => {
