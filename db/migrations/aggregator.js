@@ -1,5 +1,8 @@
 const
 childHealthBenefit = require('./childHealthBenefit'),
+resp               = require('./resp'),
+rdsp               = require('./rdsp'),
+adultHealthBenefit = require('./adultHealthBenefit'),
 utils              = require('./utils'),
 errors             = require('./errors');
 
@@ -30,6 +33,9 @@ function generateMasterMapping(screeners) {
 function gatherScreenerMappings() {
   let mappings = [];
   mappings.push(childHealthBenefit.screener);
+  mappings.push(resp.screener);
+  mappings.push(adultHealthBenefit.screener);
+  mappings.push(rdsp.screener);
   return mappings;
 }
 
@@ -41,6 +47,9 @@ function gatherScreenerMappings() {
 function gatherQueries() {
   let queries = [];
   queries.push(childHealthBenefit.queries);
+  queries.push(resp.queries)
+  queries.push(adultHealthBenefit.queries);
+  queries.push(rdsp.queries);
   // http://stackoverflow.com/a/10865042/764384
   return [].concat.apply([], queries);
 }

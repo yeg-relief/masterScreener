@@ -7,7 +7,7 @@ exports.questionaire = {
         {
           "type": "line",
           "id": "income",
-          "text": "income"
+          "text": "family income"
         },
         {
           "type": "radiogroup",
@@ -34,6 +34,27 @@ exports.questionaire = {
           "text": "How many children under 18 do you have?",
           "type": "line",
           "id": "numChildren"
+        },
+        {
+          "id": "afterDate",
+          "cond": "children",
+          "text": "Were any of your children born after January 1st 2004?",
+          "type": "radiogroup",
+          "defaultChoice": false,
+          "choices": [
+            {"bornAfterDate": "Yes"},
+            {"bornAfterDate_no": "No"}
+          ]
+        },
+        {
+          "id": "disabled",
+          "text": "Do you qualify for the disablity tax credit?",
+          "type": "radiogroup",
+          "defaultChoice": false,
+          "choices": [
+            {"disablityTaxCredit": "Yes"},
+            {"disablityTaxCredit_no": "No"}
+          ]
         }
       ]
     }

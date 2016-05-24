@@ -7,25 +7,28 @@ function buildMatcher() {
                   inset 0 2px 3px rgba(255,255,255,0.3),
                   inset 0 -2px 3px rgba(0,0,0,0.3),
                   0 1px 1px rgba(255,255,255,0.9);
-                 padding-left: 10px;`;
+                 padding-left: 10px;
+                 pointer-events: none;
+                 cursor: default;`;
 
   const description = {
     "type": "info",
-    "id": "ChildHealthBenefit",
+    "id": "AdultHealthBenefit",
     "text":
             `
               <div style="${style}">
-              <b>Alberta Child Health Benefit</b>
+              <b>Alberta Adult Health Benefit</b>
               <br>
-              <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+              <a href="http://www.humanservices.alberta.ca/financial-support/2076.html" class="not-active">
+                No More Details</a>
               </div>
             `
   }
 
-  const ids = ['s1', 's2', 's3', 's4', 'c1', 'c2', 'c3', 'c4'];
+  const ids = ['s', 'c'];
   let baseObject = Object.create({});
   ids.forEach( e => {
-    baseObject[`child_health_benefit_${e}`] = function(items){ return description;}
+    baseObject[`adult_health_benefit_${e}`] = function(items){ return description;}
   });
   return baseObject;
 }

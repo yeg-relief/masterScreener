@@ -47,6 +47,7 @@ function masterSubmit(req, res) {
   .then(
     resp => {
       let descriptions = [];
+      let i = 0;
       resp.matches.forEach( e => {
         models.matchResponse(e._id, descriptions);
       });

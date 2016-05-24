@@ -11,21 +11,18 @@ function buildMatcher() {
 
   const description = {
     "type": "info",
-    "id": "ChildHealthBenefit",
+    "id": "rdsp",
     "text":
             `
               <div style="${style}">
-              <b>Alberta Child Health Benefit</b>
+              <b>RDSP: Registered Disablity Savings Plan</b>
               <br>
-              <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+              <a href="http://www.rdsp.com/calculator/">More Details</a>
               </div>
             `
   }
 
-  const ids = ['s1', 's2', 's3', 's4', 'c1', 'c2', 'c3', 'c4'];
   let baseObject = Object.create({});
-  ids.forEach( e => {
-    baseObject[`child_health_benefit_${e}`] = function(items){ return description;}
-  });
+  baseObject['rdsp'] = function(items){ return description;}
   return baseObject;
 }

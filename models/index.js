@@ -2,6 +2,9 @@ const
 scrubber            = require('./submitScrubber'),
 utils               = require('../db/utils'),
 childHBmatcher      = require('./childHealthBenefit').matcher,
+respMatcher         = require('./resp').matcher,
+rdspMatcher         = require('./rdsp').matcher,
+adultHBmatcher      = require('./adultHealthBenefit').matcher,
 masterScreener      = require('./masterScreener').questionaire;
 
 /*
@@ -32,6 +35,12 @@ const matcher = buildMatcher();
 function buildMatcher() {
   matchAll = Object.create(null);
   Object.assign(matchAll, childHBmatcher);
+  Object.assign(matchAll, respMatcher);
+  Object.assign(matchAll, adultHBmatcher);
+  Object.assign(matchAll, rdspMatcher);
+  for(const prop in matchAll){
+    console.log(`matchAll has prop ${prop}`);
+  }
   return matchAll;
 }
 
@@ -46,15 +55,5 @@ function buildMatcher() {
 */
 function matchResponse(id, items) {
   const descr = matcher[id](items);
-  // ensure we don't push duplicates
-  // TODO: evaluate if this is overly cautious
-  if(items.length === 0) {
-    items.push(descr);
-  } else {
-    items.forEach( e => {
-      if (e.id !== descr.id) {
-        items.push(descr);
-      }
-    });
-  }
+  items.push(descr);
 }
