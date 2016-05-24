@@ -8,7 +8,7 @@ module.exports = {
     as well as I would like. So, we need to 'massage' the data into a more
     appropriate form.
     @param {Object} userResponse - An object representing the client answers from a screener
-    @return {Object} 
+    @return {Object}
  */
 function scrub(userResponse) {
   let output = Object.create(Object.prototype);

@@ -1,3 +1,5 @@
+//TODO: there is a bug: if you reset and then submit, you wont be able to return to master
+
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/dom/ajax';
@@ -49,6 +51,7 @@ const goToResults = (res) => {
 
 Observable.fromEvent(submitBtn, 'click')
 .subscribe( () => {
+  console.log(vsaq.qpageObject_.questionnaire.getValuesAsJson());
   netCall();
 });
 Observable.fromEvent(returnBtn, 'click')
