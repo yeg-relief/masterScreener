@@ -14,8 +14,8 @@ function buildMatcher() {
             `
   }
 
-  const ids = ['s', 'c'];
-  let baseObject = Object.create({});
+  const ids = ['s', 'c'],
+        baseObject = Object.create({});
   ids.forEach( e => {
     baseObject[`adult_health_benefit_${e}`] = function(items){ return description;}
   });
