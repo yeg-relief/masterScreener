@@ -54,17 +54,17 @@ function generateQuery(id, numChildren, commonLaw, income){
     id: `child_health_benefit_${id}`,
     query: {
       "constant_score" : {
-        "filter" : {
-          "bool" : {
-            "must" : [
-              { "term" : {"children" : true } },
-              { "term" : {"numChildren" : numChildren } },
-              { "term" : {"commonLaw" : commonLaw} },
-              { "range" : {"income": {"lte" : income}} }
-            ]
-          }
-        }
-      }
-    }
-  }
+       "filter" : {
+         "bool" : {
+           "must" : [
+             { "term" : {"children" : true } },
+             { "term" : {"numChildren" : numChildren}},
+             { "term" : {"commonLaw" : commonLaw} },
+             { "range" : {"income": {"lte" : income}} }
+           ]
+         }
+       }
+     }
+   }
+ }
 }

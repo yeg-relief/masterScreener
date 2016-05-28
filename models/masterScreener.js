@@ -16,7 +16,7 @@ exports.questionaire = {
           "defaultChoice": false,
           "choices": [
             {"commonLaw": "Yes"},
-            {"commonLaw": "No"}
+            {"commonLaw_no": "No"}
           ]
         },
         {
