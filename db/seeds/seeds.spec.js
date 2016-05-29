@@ -4,7 +4,7 @@ assert = require('chai').assert,
 expect = require('chai').expect,
 utils  = require('./utils'),
 errors = require('./errors'),
-index  = require('./index');
+aggregator  = require('./aggregator');
 
 /*
   Every individual screener has certain mappings such that when these
@@ -90,7 +90,7 @@ describe('db.models.index.generateMasterMapping', function() {
     let mappings = [];
     mappings.push(screenerOne);
     mappings.push(screenerTwo);
-    const masterscreener = index.generateMasterMapping(mappings);
+    const masterscreener = aggregator.generateMasterMapping(mappings);
     const expectedScreener = {
                                 income: { type: 'integer' },
                                 commonLaw: { type: 'boolean' },
@@ -98,6 +98,6 @@ describe('db.models.index.generateMasterMapping', function() {
                                 adult: { type: 'boolean' },
                                 field: { type: 'string' }
                               };
-    assert.deepEqual(expectedScreener, masterscreener);                          
+    assert.deepEqual(expectedScreener, masterscreener);
   });
 });

@@ -1,6 +1,6 @@
 const
 elasticsearch = require('elasticsearch'),
-migrate       = require('./migrate'),
+migrate       = require('./seed'),
 config        = require('../config');
 
-migrate.initDB(config);
+seed.initDB(config);

@@ -16,7 +16,6 @@ function scrub(userResponse) {
   for(const prop in userResponse) {
     if(userResponse.hasOwnProperty(prop)){
       if (userResponse[prop] === 'checked'){
-
         output[prop] = true;
       // explicit skipping of unmarked/unchecked values
       } else if (userResponse[prop] === ''){

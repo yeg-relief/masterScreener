@@ -90,7 +90,6 @@ function initPercolators(elasticClient, indexName) {
  */
 function initDB(config) {
   const masterMapping   = mapper.generateMasterMapping(mapper.gatherScreenerMappings());
-
   testConnect(config.client)
   // master index and mappings
   .then(utils.initIndex(config.client, config.masterIndex))
