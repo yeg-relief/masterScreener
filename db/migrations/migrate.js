@@ -1,6 +1,7 @@
 const
-utils = require('../utils'),
-modelIndex = require('./aggregator');
+utils           = require('../utils'),
+mapper          = require('./aggregator'),
+responseMapping = require('../../models/response').mapping;
 
 module.exports = {
   initDB
@@ -62,8 +63,7 @@ function initIndex(elasticClient, indexName) {
   @param {string} typeName - the name of the type to map on the index.
   @return {Promise}
  */
-function initMasterMapping(elasticClient, indexName, typeName) {
-  const mapping = modelIndex.generateMasterMapping(modelIndex.gatherScreenerMappings());
+function initMasterMapping(elasticClient, indexName, typeName, mapping) {
   return utils.initMapping(elasticClient, indexName, typeName, mapping);
 }
 
@@ -73,10 +73,10 @@ function initMasterMapping(elasticClient, indexName, typeName) {
   all the queries from the individual models.
   @param {Object} elasticClient - driver for elasticsearch.
   @param {string} indexName - the name of the index to initialize.
-  @return {Promise.all()}
+  @return {Promise.all}
  */
 function initPercolators(elasticClient, indexName) {
-  const queries = modelIndex.gatherQueries();
+  const queries = mapper.gatherQueries();
   let percolators = [];
   queries.forEach((element, index, array) => {
     percolators.push(utils.addPercolator(elasticClient, indexName, element.id, element.query));
@@ -86,12 +86,21 @@ function initPercolators(elasticClient, indexName) {
 
 /**
   Executes a chain of promises to initialize the Elasticsearch backend.
-  TODO: should I close the client after or just let the program exit?
   @param {Object} config - contains Elasticsearch client along with type + index names (strings)
  */
 function initDB(config) {
+  const masterMapping   = mapper.generateMasterMapping(mapper.gatherScreenerMappings());
+
   testConnect(config.client)
-  .then(initIndex(config.client, config.masterIndex))
-  .then(initMasterMapping(config.client, config.masterIndex, config.masterTypeName))
-  .then(initPercolators(config.client, config.masterIndex));
+  // master index and mappings
+  .then(utils.initIndex(config.client, config.masterIndex))
+  .then(utils.initMapping(config.client, config.masterIndex, config.masterTypeName, masterMapping))
+  // response index and mappings
+  .then(utils.initIndex(config.client, config.responseIndex))
+  .then(utils.initMapping(config.client, config.responseIndex, config.responseTypeName, responseMapping))
+  .then(initPercolators(config.client, config.masterIndex))
+  .catch( e => {
+    console.log(`exiting with ${e}`);
+    process.exit(1);
+  })
 }
