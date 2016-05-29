@@ -1,6 +1,6 @@
 const
-elasticsearch = require('elasticsearch'),
-migrate       = require('./seed'),
-config        = require('../config');
+seed = require('./seed')
 
-seed.initDB(config);
+module.exports = {
+  seed
+}

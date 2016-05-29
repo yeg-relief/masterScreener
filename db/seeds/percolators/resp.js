@@ -1,16 +1,5 @@
-const screenerName = 'RESP: Canadian Learning Bond';
-
-const screenerMappings = {
-  income: {type: "integer"},
-  bornAfterDate: {type: "boolean"},
-  children: {type: "boolean"}
-}
-
-const screener = Object.assign({}, {screenerName: screenerName}, {screenerMappings: screenerMappings});
 const queries = generateQueries();
-
 module.exports = {
-  screener,
   queries
 }
 
