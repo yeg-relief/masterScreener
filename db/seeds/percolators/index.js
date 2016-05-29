@@ -5,8 +5,9 @@ rdsp               = require('./rdsp').queries,
 resp               = require('./resp').queries;
 
 const queries = gatherQueries();
-module.exports = queries;
-
+module.exports = {
+  queries
+}
 function gatherQueries() {
   let queries = [];
   queries.push(childHealthBenefit);

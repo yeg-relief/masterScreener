@@ -19,6 +19,7 @@ function generateQueries(){
 function generateQuery(){
   return {
     id: `resp`,
+    type: "master",
     query: {
       "constant_score" : {
         "filter" : {

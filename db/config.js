@@ -1,9 +1,5 @@
-const
-elasticsearch = require('elasticsearch')
-client        = new elasticsearch.Client({host: 'localhost:9200', log: 'trace'});
-
+// TODO: consider if this is needed
 module.exports = {
-  client: client,
   masterIndex: 'master_screener',
   masterTypeName: 'master',
   responseIndex: 'response',

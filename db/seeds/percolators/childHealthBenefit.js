@@ -36,6 +36,7 @@ function generateQueries(){
 function generateQuery(id, numChildren, commonLaw, income){
   return {
     id: `child_health_benefit_${id}`,
+    type: "master",
     query: {
       "constant_score" : {
        "filter" : {

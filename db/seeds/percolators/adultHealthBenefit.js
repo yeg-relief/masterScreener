@@ -14,6 +14,7 @@ function generateQueries(){
 function generateQuery(id, commonLaw, income){
   return {
     id: `adult_health_benefit_${id}`,
+    type: "master",
     query: {
       "constant_score" : {
         "filter" : {

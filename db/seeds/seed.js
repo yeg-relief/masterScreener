@@ -1,11 +1,13 @@
 const
-utils           = require('../utils'),
-mapper          = require('./aggregator'),
-responseMapping = require('../../models/response').mapping;
+utils         = require('../utils'),
+indices       = require('./indices/index'),
+percolators   = require('./percolators/index'),
+responses     = require('./responses/index'),
+elasticsearch = require('elasticsearch');
 
 module.exports = {
   initDB
-};
+}
 
 /**
   tests the connection to the elastic search server
@@ -33,73 +35,61 @@ function testConnect(elasticClient) {
 
 
 /**
-  If an index does not exist, then initialize the index. Otherwise log an message
-  that it exists.
-  @param {Object} elasticClient - driver for elasticsearch
-  @param {string} indexName - the name of the index to initialize
-  @return {Promise}
- */
-function initIndex(elasticClient, indexName) {
-  return new Promise(
-    resolve => {
-      utils.indexExists(elasticClient, indexName)
-      .then( exists => {
-        if(!exists) {
-          resolve(utils.initIndex(elasticClient, indexName));
-        } else {
-          resolve(console.log(`${indexName} already exists.`))
-        }
-      });
-    }
-  );
-}
-
-/**
-  Calls generateMasterMapping() from models/index.js and uses this function to
-  generate a mapping for the "master index". Master index refers to the index
-  which we will percolate our documents against.
-  @param {Object} elasticClient - driver for elasticsearch.
-  @param {string} indexName - the name of the index to initialize.
-  @param {string} typeName - the name of the type to map on the index.
-  @return {Promise}
- */
-function initMasterMapping(elasticClient, indexName, typeName, mapping) {
-  return utils.initMapping(elasticClient, indexName, typeName, mapping);
-}
-
-/**
-  Calls gatherQueries() from modesl/index.js using this queries to generate an
-  array of index percolator promises, and then returns this array, ie, indexes
-  all the queries from the individual models.
-  @param {Object} elasticClient - driver for elasticsearch.
   @param {string} indexName - the name of the index to initialize.
   @return {Promise.all}
  */
 function initPercolators(elasticClient, indexName) {
-  const queries = mapper.gatherQueries();
-  let percolators = [];
-  queries.forEach((element, index, array) => {
-    percolators.push(utils.addPercolator(elasticClient, indexName, element.id, element.query));
+  const queries     = percolators.queries,
+        promises    = [];
+  queries.forEach( e => {
+    promises.push(utils.addPercolator(elasticClient, indexName, e.id, e.query));
   });
-  return Promise.all(percolators);
+  return Promise.all(promises);
+}
+
+function initResponses(elasticClient, indexName, typeName) {
+  const templates = responses.items,
+        promises  = [];
+  templates.forEach( e => {
+    promises.push(utils.indexDoc(elasticClient, indexName, e.id, typeName, e));
+  });
+  return Promise.all(promises);
 }
 
 /**
   Executes a chain of promises to initialize the Elasticsearch backend.
   @param {Object} config - contains Elasticsearch client along with type + index names (strings)
  */
-function initDB(config) {
-  const masterMapping   = mapper.generateMasterMapping(mapper.gatherScreenerMappings());
-  testConnect(config.client)
-  // master index and mappings
-  .then(utils.initIndex(config.client, config.masterIndex))
-  .then(utils.initMapping(config.client, config.masterIndex, config.masterTypeName, masterMapping))
-  // response index and mappings
-  .then(utils.initIndex(config.client, config.responseIndex))
-  .then(utils.initMapping(config.client, config.responseIndex, config.responseTypeName, responseMapping))
-  .then(initPercolators(config.client, config.masterIndex))
+function initDB() {
+  const
+  client   = new elasticsearch.Client({host: 'localhost:9200', log: 'trace'}),
+  master   = indices.items[0],
+  response = indices.items[1];
+
+
+  testConnect(client)
   .catch( e => {
-    console.log(`exiting with ${e}`);
+    console.log(`exiting with ${e}\non testing connection.`);
     process.exit(1);
+  })
+  .then(utils.initIndex(client, master.index, master.mappings))
+  .catch( e => {
+    console.log(`exiting with ${e}\non initiating master index.`);
+    process.exit(2);
+  })
+  .then(utils.initIndex(client, response.index, response.mappings))
+  .catch ( e => {
+    console.log(`exiting with ${e}\non initiating response index.`);
+    process.exit(4);
+  })
+  .then(initPercolators(client, master.index))
+  .catch ( e => {
+    console.log(`exiting with ${e}\non indexing percolators.`);
+    process.exit(6);
+  })
+  .then(initResponses(client,response.index, response.type))
+  .catch ( e => {
+    console.log(`exiting with ${e}\non indexing response percolators.`);
+    process.exit(6);
   })
 }

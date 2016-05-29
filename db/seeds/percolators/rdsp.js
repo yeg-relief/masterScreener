@@ -13,6 +13,7 @@ function generateQueries(){
 function generateQuery(){
   return {
     id: `rdsp`,
+    type: "master",
     query: {
       "constant_score" : {
         "filter" : {
