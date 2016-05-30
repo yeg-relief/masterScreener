@@ -6,7 +6,8 @@ module.exports = {
   mappingExists,
   addPercolator,
   percolateDocument,
-  indexDoc
+  indexDoc,
+  search
 }
 
 /*
@@ -86,4 +87,14 @@ function indexDoc(elasticClient, indexName, id, type, doc){
       doc
     }
   });
+}
+
+function search(elasticClient, index, type, query) {
+  return elasticClient.search({
+    index: index,
+    type: type,
+    body: {
+      query: query
+    }
+  })
 }
