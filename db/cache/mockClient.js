@@ -48,7 +48,14 @@ expectedCache['resp'] = {
   "text": '<a href="https://www.smartsaver.org/">More Details</a>'
 };
 
+const setValue = {
+  "type": 'info',
+  "id": 'test',
+  "text": '<a href="https://www.fake.org/">More Details</a>'
+}
+
 module.exports = {
   mockClient,
-  expectedCache
+  expectedCache,
+  setValue
 }

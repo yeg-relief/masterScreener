@@ -1,5 +1,4 @@
-const search = require('../utils').search,
-      Rx     = require('@reactivex/rxjs');
+const search = require('../utils').search;
 
 exports.Class = class Cache {
   constructor(elasticClient, strategy) {
@@ -33,23 +32,21 @@ exports.Class = class Cache {
     optimistic? At the moment there is a small number of programs and as long
     as we ensure that all new programs are pushed to both the cache memory and
     the elasticsearch server, then it should be ok.
-
-    This is on a synchronous scheduler
   */
-  getSync(ids){
-    return Rx.Observable.from(ids)
-           //filter out the misses this is not a good practice
-           // partitioning the the observable into defined and undefined
-           // and then fetching the undefined values from ES is an attractive
-           // strategy. 
-           .filter( id => typeof this.memory[id] !== 'undefined')
-           .reduce( (hits, curr) => {
-             hits.responses.push(this.memory[curr])
-             return hits
-           }, {responses: [] });
+  get(ids){
+    return ids
+           .map(id => this.memory[id])
+           .filter( resp=> typeof resp !== 'undefined')
+
   }
 
+
+  // bounding unnecessary?
   set(res){
-    this.memory[res.id] = res;
+    if(this.memory.size <= 1000){
+      this.memory[res.id] = res;
+      return true;
+    }
+    return false;
   }
 }

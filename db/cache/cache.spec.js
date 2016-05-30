@@ -4,6 +4,7 @@ assert = require('chai').assert,
 expect = require('chai').expect,
 Cache  = require('./cache').Class,
 client = require('./mockClient').mockClient,
+setValue = require('./mockClient').setValue,
 expectedCache = require('./mockClient').expectedCache;
 
 describe('Cache class', () => {
@@ -20,13 +21,27 @@ describe('Cache class', () => {
   });
 
   it('has a function called get', () => {
-    assert.typeOf(cache.getSync, 'Function');
+    assert.typeOf(cache.get, 'Function');
   });
 
-  it('saves hits to the hits variable', () => {
-    cache.getSync(['resp', 'miss'])
-    .subscribe( x => {
-      console.log(x.responses);
-    });
+  it('has a function called set', () => {
+    assert.typeOf(cache.set, 'Function')
+  })
+
+  it('returns an array with the responses in memory', () => {
+    const responses = cache.get(['resp'])
+    assert.deepEqual(responses, [expectedCache['resp']])
   });
+
+  it('returns an empty array when all are missed', () => {
+    const responses = cache.get(['miss'])
+    assert.deepEqual(responses, [])
+  })
+
+  it('sets a value in the memory', () => {
+    const success = cache.set(setValue);
+    assert.equal(success, true);
+    const responses = cache.get(['resp', 'test'])
+    assert.deepEqual(responses, [expectedCache['resp'], setValue])
+  })
 })
