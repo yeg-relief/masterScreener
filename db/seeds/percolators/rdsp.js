@@ -1,20 +1,8 @@
-const screenerName = 'Disability Tax Credit';
-
-/**
-  these are the objects that are required for the master_screener mappings w.r.t.
-  childHealthBenefit.
- */
-const screenerMappings = {
-  disablityTaxCredit: {type: "boolean"}
-}
-
-const screener = Object.assign({}, {screenerName: screenerName}, {screenerMappings: screenerMappings});
 const queries = generateQueries();
-
 module.exports = {
-  screener,
   queries
 }
+
 
 function generateQueries(){
   let queries = [];
@@ -25,6 +13,7 @@ function generateQueries(){
 function generateQuery(){
   return {
     id: `rdsp`,
+    type: "master",
     query: {
       "constant_score" : {
         "filter" : {

@@ -1,17 +1,8 @@
-const screenerName = 'Adult Health Benefit';
-
-const screenerMappings = {
-  income: {type: "integer"},
-  commonLaw: {type: "boolean"},
-}
-
-const screener = Object.assign({}, {screenerName: screenerName}, {screenerMappings: screenerMappings});
 const queries = generateQueries();
-
 module.exports = {
-  screener,
   queries
 }
+
 
 function generateQueries(){
   let queries = [];
@@ -23,6 +14,7 @@ function generateQueries(){
 function generateQuery(id, commonLaw, income){
   return {
     id: `adult_health_benefit_${id}`,
+    type: "master",
     query: {
       "constant_score" : {
         "filter" : {

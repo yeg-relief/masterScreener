@@ -54,10 +54,5 @@ function buildMatcher() {
   @param {Array[Object]} items - an array of vsaq "tip" objects used to render server response on client
 */
 function matchResponse(id, items) {
-  console.log('========================');
-  console.log(id);
-  const descr = matcher[id](items);
-  console.log(descr.id);
-  console.log('=========================');
-  items.push(descr);
+  items.push(matcher[id](items));
 }
