@@ -20,7 +20,13 @@ describe('Cache class', () => {
   });
 
   it('has a function called get', () => {
-    assert.typeOf(cache.get, 'Function');
+    assert.typeOf(cache.getSync, 'Function');
   });
 
+  it('saves hits to the hits variable', () => {
+    cache.getSync(['resp', 'miss'])
+    .subscribe( x => {
+      console.log(x.responses);
+    });
+  });
 })
