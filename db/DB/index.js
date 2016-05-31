@@ -1,6 +1,8 @@
 const
 utils = require('../utils');
 
+// key for master questionnaire
+const masterQ = 'MASTER_QUESTIONNAIRE';
 
 exports.Class = class Cache {
   constructor(elasticClient) {
@@ -17,6 +19,7 @@ exports.Class = class Cache {
     .then(
       response => {
         const hits = response.hits.hits;
+        // TODO: ensure doc is found before saving?
         hits.forEach(e => {
           this.memory.set(e._source.doc.id, e._source.doc);
         })
@@ -25,6 +28,25 @@ exports.Class = class Cache {
       error => {
         console.log(error);
         return Promise.reject(`Unable to load responses into cache!\n${error}`);
+      }
+    )
+    .then(
+      () => {
+        return Promise.resolve(utils.get(this.client, 'questionnaire', 'master', 'questionnaire' ))
+      }
+    )
+    .then(
+      response => {
+        if(response.found === true){
+          const doc = response._source.doc;
+          this.memory.set(masterQ, doc);
+          return Promise.resolve(this);
+        }
+        return Promise.reject(response._found);
+      },
+      error => {
+        console.log(error);
+        return Promise.reject(`Unable to load master questionnaire into cach\n${error}`);
       }
     )
   }

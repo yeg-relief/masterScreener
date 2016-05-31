@@ -1,14 +1,15 @@
 module.exports = {
+  addPercolator,
   deleteIndex,
-  initIndex,
+  get,
+  indexDoc,
   indexExists,
+  initIndex,
   initMapping,
   mappingExists,
-  addPercolator,
+  mGet,
   percolateDocument,
-  indexDoc,
-  search,
-  mGet
+  search
 }
 
 /*
@@ -79,7 +80,7 @@ function percolateDocument(elasticClient, indexName, typeName, doc){
 }
 
 function indexDoc(elasticClient, indexName, id, doc, type){
-  if (typeof type === 'undefined'){
+  if (type === undefined){
     return elasticClient.index({
       index: indexName,
       id: id,
@@ -99,7 +100,7 @@ function indexDoc(elasticClient, indexName, id, doc, type){
   }
 }
 
-function search(elasticClient, index, type, query) {
+function search(elasticClient, index, type, query){
   return elasticClient.search({
     index: index,
     type: type,
@@ -109,12 +110,20 @@ function search(elasticClient, index, type, query) {
   })
 }
 
-function mGet(elasticClient, index, type, ids) {
+function mGet(elasticClient, index, type, ids){
   return elasticClient.mget({
     index: index,
     type: type,
     body: {
       ids: ids
     }
+  })
+}
+
+function get(elasticClient, index, type, id){
+  return elasticClient.get({
+    index: index,
+    type: type,
+    id: id
   })
 }
