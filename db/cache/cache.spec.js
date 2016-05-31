@@ -73,6 +73,11 @@ describe('Cache class', () => {
              return Promise.resolve(cache);
            })
            .then(cache => {return Promise.resolve(cache.get(['resp', 'rdsp']))})
+           .then(res => {
+             // fetched values will be saved in memory notice the delete on line 72
+             assert.deepEqual(cache.memory.get('resp'), expected[1])
+             return Promise.all(res);
+           })
            .then(res => assert.deepEqual(expected, res))
   })
 })
