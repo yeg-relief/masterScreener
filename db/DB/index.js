@@ -4,7 +4,7 @@ utils = require('../utils');
 // key for master questionnaire
 const masterQ = 'MASTER_QUESTIONNAIRE';
 
-class DB {
+exports.Class = class DB {
   constructor(elasticClient) {
     this.memory = new Map();
     this.client = elasticClient;
