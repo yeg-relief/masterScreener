@@ -21,7 +21,7 @@ function deleteIndex(elasticClient, indexName){
 }
 
 function initIndex(elasticClient, indexName, mappings){
-  if (mappings === undefined){
+  if (typeof mappings === 'undefined'){
     return elasticClient.indices.create({
       index: indexName
     });
@@ -78,15 +78,25 @@ function percolateDocument(elasticClient, indexName, typeName, doc){
   });
 }
 
-function indexDoc(elasticClient, indexName, id, type, doc){
-  return elasticClient.index({
-    index: indexName,
-    type: type,
-    id: id,
-    body: {
-      doc
-    }
-  });
+function indexDoc(elasticClient, indexName, id, doc, type){
+  if (typeof type === 'undefined'){
+    return elasticClient.index({
+      index: indexName,
+      id: id,
+      body: {
+        doc
+      }
+    });
+  }else{
+    return elasticClient.index({
+      index: indexName,
+      type: type,
+      id: id,
+      body: {
+        doc
+      }
+    });
+  }
 }
 
 function search(elasticClient, index, type, query) {

@@ -67,7 +67,7 @@ exports.Class = class Cache {
   }
 
 
-  // bounding unnecessary?
+  // hide this behind a proxy?
   set(res){
     if(this.memory.size <= 100){
       this.memory.set(res.id, res);
