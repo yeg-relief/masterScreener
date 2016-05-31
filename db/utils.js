@@ -7,13 +7,13 @@ module.exports = {
   addPercolator,
   percolateDocument,
   indexDoc,
-  search
+  search,
+  mGet
 }
 
 /*
   Function names are self-describing.
 */
-
 function deleteIndex(elasticClient, indexName){
   return elasticClient.indices.delete({
     index: indexName
@@ -95,6 +95,16 @@ function search(elasticClient, index, type, query) {
     type: type,
     body: {
       query: query
+    }
+  })
+}
+
+function mGet(elasticClient, index, type, ids) {
+  return elasticClient.mget({
+    index: index,
+    type: type,
+    body: {
+      ids: ids
     }
   })
 }

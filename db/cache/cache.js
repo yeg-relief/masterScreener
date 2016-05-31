@@ -1,31 +1,52 @@
-const search = require('../utils').search;
+const
+utils = require('../utils');
+
 
 exports.Class = class Cache {
-  constructor(elasticClient, strategy) {
+  constructor(elasticClient) {
     this.memory = new Map();
     this.client = elasticClient;
+  }
+
+  loadInitial(){
     const query = {
       "match_all" : {}
     }
-    /*
-      load all responses into memory, we expect < 100 responses to be available
-      if by some miracle we have over 100 benefits to navigate through,
-      then I'll gladly implement a more innovative cache.
-    */
-    this.client.search(elasticClient, 'response', 'html_response', query)
+
+    return utils.search(this.client, 'response', 'html_response', query)
     .then(
       response => {
         const hits = response.hits.hits;
         hits.forEach(e => {
-          this.memory[e._source.doc.id] = e._source.doc;
+          this.memory.set(e._source.doc.id, e._source.doc);
         })
+        return Promise.resolve(this)
       },
       error => {
         console.log(error);
-        throw new Error(`Unable to load responses into cache!`);
+        return Promise.reject(`Unable to load responses into cache!\n${error}`);
       }
     )
   }
+
+  fetch(ids){
+    return utils.mGet(this.client, 'response', 'html_response', ids)
+           .then(
+             response => {
+               const hits = response.docs
+                            .filter( doc => doc.found === true)
+                            .map( doc => {
+                              this.set(doc._source.doc);
+                              return doc._source.doc
+                            })
+               return Promise.all(hits);
+             },
+             error => {
+               return Promise.reject(error);
+             }
+           )
+  }
+
 
   /*
     this assumes that all responses are in the memory... maybe a little too
@@ -34,19 +55,35 @@ exports.Class = class Cache {
     the elasticsearch server, then it should be ok.
   */
   get(ids){
-    return ids
-           .map(id => this.memory[id])
-           .filter( resp=> typeof resp !== 'undefined')
-
+    const partition =  ids.reduce( (accumulator, id) => {
+                          const val = this.memory.get(id);
+                          if(typeof val !== 'undefined'){
+                            accumulator.hits.push(val);
+                          } else {
+                            accumulator.misses.push(id);
+                          }
+                          return accumulator;
+                        }, {hits: [], misses: []});
+    if(partition.misses.length === 0){
+      return Promise.all(partition.hits);
+    }
+    return Promise.all(partition.hits.concat(this.fetch(partition.misses)))
+           .then(res => {
+             return Promise.resolve([].concat.apply([], res));
+           })
   }
 
 
   // bounding unnecessary?
   set(res){
-    if(this.memory.size <= 1000){
-      this.memory[res.id] = res;
+    if(this.memory.size <= 100){
+      this.memory.set(res.id, res);
       return true;
     }
     return false;
+  }
+
+  delete(id){
+    return this.memory.delete(id)
   }
 }

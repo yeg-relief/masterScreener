@@ -2,46 +2,77 @@
 const
 assert = require('chai').assert,
 expect = require('chai').expect,
-Cache  = require('./cache').Class,
-client = require('./mockClient').mockClient,
-setValue = require('./mockClient').setValue,
-expectedCache = require('./mockClient').expectedCache;
+Cache  = require('./cache').Class;
+
+const elasticsearch = require('elasticsearch'),
+      client        = new elasticsearch.Client({host: 'localhost:9200'})
 
 describe('Cache class', () => {
 
-
-  const cache = new Cache(client);
   it('contains a default Map named memory', () => {
+    const cache = new Cache(client);
     assert.typeOf(cache.memory, 'Map');
   });
 
-  // mock data encapsulated in mockClient.js
-  it('should have data loaded by the constructor', () => {
-    assert.deepEqual(cache.memory, expectedCache);
-  });
-
   it('has a function called get', () => {
+    const cache = new Cache(client);
     assert.typeOf(cache.get, 'Function');
   });
 
   it('has a function called set', () => {
+    const cache = new Cache(client);
     assert.typeOf(cache.set, 'Function')
-  })
+  });
 
+  it('has a function called loadInitial', () => {
+    const cache = new Cache(client);
+    assert.typeOf(cache.loadInitial, 'Function')
+  });
+
+  it('is able to be initialized with data', () => {
+    const cache = new Cache(client)
+    return cache.loadInitial()
+          .then( cache => assert.equal(cache.memory.size > 0, true))
+  });
+
+  // this test requires that there is a program called 'resp' to be in the database
   it('returns an array with the responses in memory', () => {
-    const responses = cache.get(['resp'])
-    assert.deepEqual(responses, [expectedCache['resp']])
+    const cache = new Cache(client);
+    return cache.loadInitial()
+           .then(cache => cache.get(['resp']))
+           .then( res => assert.deepEqual(res, [cache.memory.get('resp')]))
   });
 
   it('returns an empty array when all are missed', () => {
-    const responses = cache.get(['miss'])
-    assert.deepEqual(responses, [])
-  })
+    const cache = new Cache(client);
+    return cache.get(['miss'])
+           .then( resp => assert.deepEqual(resp, []))
+  });
 
-  it('sets a value in the memory', () => {
-    const success = cache.set(setValue);
-    assert.equal(success, true);
-    const responses = cache.get(['resp', 'test'])
-    assert.deepEqual(responses, [expectedCache['resp'], setValue])
+  it('will fetch missed gets', () => {
+    const cache = new Cache(client);
+    let expected;
+    return cache.loadInitial()
+           .then(cache => {
+             expected = cache.memory.get('resp');
+             cache.delete('resp');
+             return Promise.resolve(cache);
+           })
+           .then(cache => {return Promise.resolve(cache.get(['resp']))})
+           .then(res => assert.deepEqual([expected], res))
+  });
+
+  it('will combine values in memory with fetched values', () => {
+    const cache = new Cache(client);
+    const expected = [];
+    return cache.loadInitial()
+           .then(cache => {
+             expected.push(cache.memory.get('rdsp'));
+             expected.push(cache.memory.get('resp'));
+             cache.delete('resp');
+             return Promise.resolve(cache);
+           })
+           .then(cache => {return Promise.resolve(cache.get(['resp', 'rdsp']))})
+           .then(res => assert.deepEqual(expected, res))
   })
 })
