@@ -4,7 +4,7 @@ utils = require('../utils');
 // key for master questionnaire
 const masterQ = 'MASTER_QUESTIONNAIRE';
 
-exports.Class = class Cache {
+class DB {
   constructor(elasticClient) {
     this.memory = new Map();
     this.client = elasticClient;
@@ -101,4 +101,25 @@ exports.Class = class Cache {
   delete(id){
     return this.memory.delete(id)
   }
+}
+
+// work in progress
+exports.Proxy = client => {
+  const db = new DB(client)
+  return new Proxy(db, {
+    const state = {initialized: false};
+    get: (obj, prop) => {
+      if(prop === 'memory'){
+        throw new Error('the DB memory property is a private property.');
+      }
+      const origMethod = target[prop];
+      return function (...args) {
+        if(this.state.initialized === true && prop === 'loadInitial'){
+          throw new Error('DB is being initialized twice');
+        }
+        let result = origMethod.apply(this, args);
+        return result;
+      };
+    }
+  });
 }
