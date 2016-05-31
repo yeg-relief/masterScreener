@@ -47,13 +47,6 @@ exports.Class = class Cache {
            )
   }
 
-
-  /*
-    this assumes that all responses are in the memory... maybe a little too
-    optimistic? At the moment there is a small number of programs and as long
-    as we ensure that all new programs are pushed to both the cache memory and
-    the elasticsearch server, then it should be ok.
-  */
   get(ids){
     const partition =  ids.reduce( (accumulator, id) => {
                           const val = this.memory.get(id);
