@@ -46,7 +46,7 @@ exports.Class = class Cache {
              }
            )
   }
-  
+
   get(ids){
     const partition =  ids.reduce( (accumulator, id) => {
                           const val = this.memory.get(id);
@@ -67,7 +67,7 @@ exports.Class = class Cache {
   }
 
 
-  // bounding unnecessary?
+  // hide this behind a proxy?
   set(res){
     if(this.memory.size <= 100){
       this.memory.set(res.id, res);
