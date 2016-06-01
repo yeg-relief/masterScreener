@@ -22,7 +22,7 @@ exports.Class = class DB {
         const hits = response.hits.hits;
         // TODO: ensure doc is found before saving?
         hits.forEach(e => {
-          this.set(e._source.doc);
+          this.cache(e._source.doc);
         })
         return Promise.resolve(this)
       },
@@ -40,7 +40,7 @@ exports.Class = class DB {
       response => {
         if(response.found === true){
           const doc = response._source.doc;
-          this.set(doc);
+          this.cache(doc);
           this.state.initialized = true;
           return Promise.resolve(this);
         }
@@ -62,7 +62,7 @@ exports.Class = class DB {
                const hits = response.docs
                             .filter( doc => doc.found === true)
                             .map( doc => {
-                              this.set(doc._source.doc);
+                              this.cache(doc._source.doc);
                               return doc._source.doc
                             })
                return Promise.all(hits);
@@ -83,6 +83,7 @@ exports.Class = class DB {
                           }
                           return accumulator;
                         }, {hits: [], misses: []});
+
     if(partition.misses.length === 0){
       return Promise.all(partition.hits);
     }
@@ -92,9 +93,7 @@ exports.Class = class DB {
            })
   }
 
-
-  // hide this behind a proxy?
-  set(res){
+  cache(res){
     if(this.memory.size <= 100){
       this.memory.set(res.id, res);
       return true;
@@ -105,4 +104,99 @@ exports.Class = class DB {
   delete(id){
     return this.memory.delete(id)
   }
+
+  uploadResponse(response){
+    if(!validateResponse(response)){
+      return Promise.reject('attempted to upload invalid response template');
+    }
+
+    return utils
+           .indexDoc(this.client, 'response', response.id, response, 'html_response')
+           .then(
+             response => {
+               if(response.created === true){
+                 return Promise.resolve(response.created);
+               } else if(response.created === false){
+                 return Promise.reject(response.created);
+               }
+               return Promise.reject(response);
+             },
+             error => {
+               return Promise.reject(error);
+             }
+           )
+  }
+
+  deleteResponse(id){
+    return utils
+           .deleteDoc(this.client, 'response', 'html_response', id)
+           .then(
+             response => {
+               if(response.found === true){
+                 return Promise.resolve(response.found);
+               } else if(response.found === false){
+                 return Promise.reject(response.found);
+               }
+               return Promise.reject(response);
+             },
+             error => {
+               return Promise.reject(error);
+             }
+           )
+  }
+  // consider how to update the master questionnaire and how this effects
+  // the percolators and mater_screener/master mapping
+  updateMaster(newMaster){
+    return utils
+           .getMapping(this.client, "master_screener", 'master')
+           .then(
+             response => {
+               const oldMapping = response.master_screener.mappings.master.properties,
+                     newMapping = newMaster.mapping,
+                     updatedMapping = compareProperties(newMapping, oldMapping);
+               if(typeof oldMapping === 'undefined'){
+                 return Promise.reject('Unable to retrieve current mapping');
+               }
+               return utils.initMapping(this.client, "master_screener", 'master', updatedMapping)
+             },
+             error => {
+               return Promise.reject(error);
+             }
+          )
+          .then(
+
+          )
+
+  }
+}
+
+// flesh out validator when response styling/content is thouroughly reviewed
+// by others.
+function validateResponse(response){
+  // do not confuse with ES mapping... this is a property needed by front end renderer
+  if(response.type !== "info"){
+    return false;
+  }
+  if(typeof response.text !== 'string'){
+    return false;
+  }
+  if(typeof response.id !== 'string'){
+    return false;
+  }
+  return true;
+}
+
+// poor naming?
+function compareProperties(upload, old){
+  const missing = {};
+  Object.getOwnPropertyNames(upload).forEach( key => {
+    // this if statement has purpose or need?
+    if(old.hasOwnProperty(key) && upload[key].type === old[key].type){
+      return
+    } else if(old.hasOwnProperty(key) && upload[key].type !== old[key].type){
+      throw new Error(`attempted redefinition of ${key} from ${old[key].type} to ${upload[key].type}`)
+    }
+    Object.assign(missing, {key: upload[key]});
+  })
+  return Object.assign(old, missing);
 }

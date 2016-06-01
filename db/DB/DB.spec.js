@@ -2,33 +2,13 @@
 const
 assert = require('chai').assert,
 expect = require('chai').expect,
-DB  = require('./index').Class;
+DB     = require('./index').Class,
+utils  = require('../utils');
 
 const elasticsearch = require('elasticsearch'),
       client        = new elasticsearch.Client({host: 'localhost:9200'});
 
 describe('DB class', () => {
-
-  it('contains a default Map named memory', () => {
-    const db = new DB(client);
-    assert.typeOf(db.memory, 'Map');
-  });
-
-  it('has a function called get', () => {
-    const db = new DB(client);
-    assert.typeOf(db.get, 'Function');
-  });
-
-  it('has a function called set', () => {
-    const db = new DB(client);
-    assert.typeOf(db.set, 'Function')
-  });
-
-  it('has a function called loadInitial', () => {
-    const db = new DB(client);
-    assert.typeOf(db.loadInitial, 'Function')
-  });
-
   it('is able to be initialized with data', () => {
     const db = new DB(client)
     return db.loadInitial()
@@ -79,5 +59,33 @@ describe('DB class', () => {
              return Promise.all(res);
            })
            .then(res => assert.deepEqual(expected, res))
+  });
+
+  it('can upload a response', () => {
+    const db = new DB(client);
+    const newResponse = {
+      type: "info",
+      id: "test",
+      text:`stuff`
+    }
+    return db.uploadResponse(newResponse)
+           .then( response => {
+             assert.equal(response, true);
+             return Promise.resolve()
+           })
+           .then(utils.deleteDoc(client, 'response', 'html_response', newResponse.id))
   })
+
+  it('can delete a response', () => {
+    const db = new DB(client);
+    const newResponse = {
+      type: "info",
+      id: "test",
+      text:`stuff`
+    }
+
+    return utils.indexDoc(client, 'response', newResponse.id, newResponse, 'html_response')
+           .then(() => {return db.deleteResponse(newResponse.id)})
+           .then( resp => assert.equal(resp, true))
+  });
 })

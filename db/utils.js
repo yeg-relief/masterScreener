@@ -1,7 +1,10 @@
+// all functions are exported
 module.exports = {
   addPercolator,
+  deleteDoc,
   deleteIndex,
   get,
+  getMapping,
   indexDoc,
   indexExists,
   initIndex,
@@ -125,5 +128,20 @@ function get(elasticClient, index, type, id){
     index: index,
     type: type,
     id: id
+  })
+}
+
+function deleteDoc(elasticClient, index, type, id){
+  return elasticClient.delete({
+    index: index,
+    type: type,
+    id: id
+  })
+}
+
+function getMapping(elasticClient, index, type){
+  return elasticClient.indices.getMapping({
+    index: index,
+    type: type
   })
 }
