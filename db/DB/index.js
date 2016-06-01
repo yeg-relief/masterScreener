@@ -1,16 +1,17 @@
 const
 utils = require('../utils');
 
-// key for master questionnaire
-const masterQ = 'MASTER_QUESTIONNAIRE';
-
 exports.Class = class DB {
   constructor(elasticClient) {
     this.memory = new Map();
     this.client = elasticClient;
+    this.state = {initialized: false}
   }
 
   loadInitial(){
+    if(this.state.initialized === true){
+      return Promise.resolve(this);
+    }
     const query = {
       "match_all" : {}
     }
@@ -21,7 +22,7 @@ exports.Class = class DB {
         const hits = response.hits.hits;
         // TODO: ensure doc is found before saving?
         hits.forEach(e => {
-          this.memory.set(e._source.doc.id, e._source.doc);
+          this.set(e._source.doc);
         })
         return Promise.resolve(this)
       },
@@ -39,7 +40,8 @@ exports.Class = class DB {
       response => {
         if(response.found === true){
           const doc = response._source.doc;
-          this.memory.set(masterQ, doc);
+          this.set(doc);
+          this.state.initialized = true;
           return Promise.resolve(this);
         }
         return Promise.reject(response._found);
@@ -50,6 +52,8 @@ exports.Class = class DB {
       }
     )
   }
+
+
 
   fetch(ids){
     return utils.mGet(this.client, 'response', 'html_response', ids)
@@ -101,25 +105,4 @@ exports.Class = class DB {
   delete(id){
     return this.memory.delete(id)
   }
-}
-
-// work in progress
-exports.Proxy = client => {
-  const db = new DB(client)
-  return new Proxy(db, {
-    const state = {initialized: false};
-    get: (obj, prop) => {
-      if(prop === 'memory'){
-        throw new Error('the DB memory property is a private property.');
-      }
-      const origMethod = target[prop];
-      return function (...args) {
-        if(this.state.initialized === true && prop === 'loadInitial'){
-          throw new Error('DB is being initialized twice');
-        }
-        let result = origMethod.apply(this, args);
-        return result;
-      };
-    }
-  });
 }

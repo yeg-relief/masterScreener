@@ -5,7 +5,7 @@ expect = require('chai').expect,
 DB  = require('./index').Class;
 
 const elasticsearch = require('elasticsearch'),
-      client        = new elasticsearch.Client({host: 'localhost:9200'})
+      client        = new elasticsearch.Client({host: 'localhost:9200'});
 
 describe('DB class', () => {
 
