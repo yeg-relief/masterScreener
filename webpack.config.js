@@ -13,7 +13,7 @@ module.exports = {
       {
         test: /\.js?$/,
         loaders: ['babel?cacheDirectory'],
-        include: __dirname + "/app"
+        include: __dirname + "/frontend"
       }
     ]
   }

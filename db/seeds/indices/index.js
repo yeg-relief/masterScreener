@@ -31,6 +31,9 @@ module.exports = {
           }
         }
       }
+    },
+    {
+      index: "questionnaire"
     }
   ]
 }

@@ -2,13 +2,19 @@ const
 models        = require('../models/index')
 elasticsearch = require('elasticsearch'),
 path          = require('path'),
-client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'});
+client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'}),
+DB            = require('../db/DB/index').Class;
 
 module.exports = {
+  editor,
   index,
   masterScreener,
   masterSubmit
 }
+
+const db = new DB(client);
+// async function make synchronous?
+db.loadInitial();
 
 // handler for '/'
 function index(req, res) {
@@ -16,11 +22,31 @@ function index(req, res) {
   res.sendFile(path.join(__dirname + '/../static/html/index.html'));
 }
 
+function editor(req, res) {
+  res.status(200);
+  res.sendFile(path.join(__dirname + '/../static/html/vsaq_editor.html'));
+}
+
 // handler for '/masterScreener'
 function masterScreener(req, res) {
   res.setHeader('Content-Type', 'application/json');
-  res.status(200);
-  res.send(JSON.stringify(models.masterScreener));
+  db.get(['questionnaire'])
+    .then( resArray => {
+      if(resArray.length === 1){
+        return Promise.resolve(JSON.stringify(resArray[0]));
+      } else {
+        return Promise.reject(resArray.length);
+      }
+    })
+    .then( questionnaire => {
+      res.status(200);
+      res.send(questionnaire);
+    },
+      error => {
+        res.status(500);
+        res.send({error: `found ${error} responses for master questionnaire in database`});
+      }
+    )
 }
 
 // handler for '/masterSubmit'

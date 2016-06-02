@@ -1,14 +1,18 @@
+// all functions are exported
 module.exports = {
+  addPercolator,
+  deleteDoc,
   deleteIndex,
-  initIndex,
+  get,
+  getMapping,
+  indexDoc,
   indexExists,
+  initIndex,
   initMapping,
   mappingExists,
-  addPercolator,
+  mGet,
   percolateDocument,
-  indexDoc,
-  search,
-  mGet
+  search
 }
 
 /*
@@ -21,7 +25,7 @@ function deleteIndex(elasticClient, indexName){
 }
 
 function initIndex(elasticClient, indexName, mappings){
-  if (mappings === undefined){
+  if (typeof mappings === 'undefined'){
     return elasticClient.indices.create({
       index: indexName
     });
@@ -78,18 +82,28 @@ function percolateDocument(elasticClient, indexName, typeName, doc){
   });
 }
 
-function indexDoc(elasticClient, indexName, id, type, doc){
-  return elasticClient.index({
-    index: indexName,
-    type: type,
-    id: id,
-    body: {
-      doc
-    }
-  });
+function indexDoc(elasticClient, indexName, id, doc, type){
+  if (type === undefined){
+    return elasticClient.index({
+      index: indexName,
+      id: id,
+      body: {
+        doc
+      }
+    });
+  }else{
+    return elasticClient.index({
+      index: indexName,
+      type: type,
+      id: id,
+      body: {
+        doc
+      }
+    });
+  }
 }
 
-function search(elasticClient, index, type, query) {
+function search(elasticClient, index, type, query){
   return elasticClient.search({
     index: index,
     type: type,
@@ -99,12 +113,35 @@ function search(elasticClient, index, type, query) {
   })
 }
 
-function mGet(elasticClient, index, type, ids) {
+function mGet(elasticClient, index, type, ids){
   return elasticClient.mget({
     index: index,
     type: type,
     body: {
       ids: ids
     }
+  })
+}
+
+function get(elasticClient, index, type, id){
+  return elasticClient.get({
+    index: index,
+    type: type,
+    id: id
+  })
+}
+
+function deleteDoc(elasticClient, index, type, id){
+  return elasticClient.delete({
+    index: index,
+    type: type,
+    id: id
+  })
+}
+
+function getMapping(elasticClient, index, type){
+  return elasticClient.indices.getMapping({
+    index: index,
+    type: type
   })
 }
