@@ -1,7 +1,6 @@
 'use strict';
 const
 assert  = require('chai').assert,
-expect  = require('chai').expect,
 DB      = require('./index').Class,
 utils   = require('../utils');
 

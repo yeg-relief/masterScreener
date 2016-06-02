@@ -3,7 +3,7 @@ models        = require('../models/index')
 elasticsearch = require('elasticsearch'),
 path          = require('path'),
 client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'}),
-DB            = require('../db/DB/index').Class;
+DB            = require('../db/index').Class;
 
 module.exports = {
   editor,
@@ -21,7 +21,7 @@ function index(req, res) {
   res.status(200);
   res.sendFile(path.join(__dirname + '/../static/html/index.html'));
 }
-
+// handler for '/editor'
 function editor(req, res) {
   res.status(200);
   res.sendFile(path.join(__dirname + '/../static/html/vsaq_editor.html'));
