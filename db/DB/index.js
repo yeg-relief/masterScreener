@@ -144,9 +144,8 @@ exports.Class = class DB {
              }
            )
   }
-  // consider how to update the master questionnaire and how this effects
-  // the percolators and mater_screener/master mapping
-  updateMaster(newMaster){
+
+  updateMasterMapping(newMapping){
     return utils
            .getMapping(this.client, "master_screener", 'master')
            .then(
@@ -157,15 +156,22 @@ exports.Class = class DB {
                if(typeof oldMapping === 'undefined'){
                  return Promise.reject('Unable to retrieve current mapping');
                }
+               return Promise.resolve(updatedMapping)
+             },
+             error => {return Promise.reject(error)}
+           )
+           .then(
+             newMapping => {
                return utils.initMapping(this.client, "master_screener", 'master', updatedMapping)
              },
-             error => {
-               return Promise.reject(error);
-             }
-          )
-          .then(
+             error => {return Promise.reject(error)}
+           );
+  }
 
-          )
+
+  // consider how to update the master questionnaire and how this effects
+  // the percolators and mater_screener/master mapping
+  updateMaster(newMaster){
 
   }
 }

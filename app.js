@@ -8,6 +8,7 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname));
 
 app.get('/', handlers.index);
+app.get('/editor', handlers.editor)
 app.get('/masterScreener', handlers.masterScreener);
 app.post('/masterSubmit', handlers.masterSubmit)
 

@@ -5,6 +5,7 @@ path          = require('path'),
 client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'});
 
 module.exports = {
+  editor,
   index,
   masterScreener,
   masterSubmit
@@ -14,6 +15,11 @@ module.exports = {
 function index(req, res) {
   res.status(200);
   res.sendFile(path.join(__dirname + '/../static/html/index.html'));
+}
+
+function editor(req, res) {
+  res.status(200);
+  res.sendFile(path.join(__dirname + '/../static/html/vsaq_editor.html'));
 }
 
 // handler for '/masterScreener'
