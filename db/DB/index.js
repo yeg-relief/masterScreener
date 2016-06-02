@@ -40,7 +40,7 @@ exports.Class = class DB {
       response => {
         if(response.found === true){
           const doc = response._source.doc;
-          this.cache(doc);
+          this.cache(doc, 'questionnaire');
           this.state.initialized = true;
           return Promise.resolve(this);
         }
@@ -48,7 +48,7 @@ exports.Class = class DB {
       },
       error => {
         console.log(error);
-        return Promise.reject(`Unable to load master questionnaire into cach\n${error}`);
+        return Promise.reject(`Unable to load master questionnaire into cache\n${error}`);
       }
     )
   }
@@ -93,9 +93,14 @@ exports.Class = class DB {
            })
   }
 
-  cache(res){
+  cache(res, id){
     if(this.memory.size <= 100){
-      this.memory.set(res.id, res);
+      if(id === undefined){
+        this.memory.set(res.id, res);
+      }else{
+        this.memory.set(id, res);
+      }
+
       return true;
     }
     return false;
@@ -151,12 +156,11 @@ exports.Class = class DB {
            .then(
              response => {
                const oldMapping = response.master_screener.mappings.master.properties,
-                     newMapping = newMaster.mapping,
-                     updatedMapping = compareProperties(newMapping, oldMapping);
+                     newMapping = newMaster.mapping;
                if(typeof oldMapping === 'undefined'){
                  return Promise.reject('Unable to retrieve current mapping');
                }
-               return Promise.resolve(updatedMapping)
+               return Promise.resolve(compareProperties(newMapping, oldMapping))
              },
              error => {return Promise.reject(error)}
            )

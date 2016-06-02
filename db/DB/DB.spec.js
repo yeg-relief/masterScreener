@@ -1,14 +1,15 @@
 'use strict';
 const
-assert = require('chai').assert,
-expect = require('chai').expect,
-DB     = require('./index').Class,
-utils  = require('../utils');
+assert  = require('chai').assert,
+expect  = require('chai').expect,
+DB      = require('./index').Class,
+utils   = require('../utils');
 
 const elasticsearch = require('elasticsearch'),
       client        = new elasticsearch.Client({host: 'localhost:9200'});
 
 describe('DB class', () => {
+
   it('is able to be initialized with data', () => {
     const db = new DB(client)
     return db.loadInitial()
@@ -88,4 +89,16 @@ describe('DB class', () => {
            .then(() => {return db.deleteResponse(newResponse.id)})
            .then( resp => assert.equal(resp, true))
   });
+  /*
+  works but I have to think of an assertion besides importing questionnaire from db/seeds/responses
+  it('has a copy of the masterQuestionnaire', () => {
+    const db = new DB(client);
+    return db.loadInitial()
+           .then( db => {
+             return db.get(['questionnaire'])
+           })
+           .then( content => console.log(JSON.stringify(content[0].questionnaire)));
+
+  })
+  */
 })
