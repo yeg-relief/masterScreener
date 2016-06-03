@@ -1,3 +1,4 @@
+// inputs and expected outputs for seach.spec.js
 exports.input = [
   {
     "income": "1000",

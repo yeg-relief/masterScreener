@@ -83,7 +83,6 @@ exports.Class = class DB {
                           }
                           return accumulator;
                         }, {hits: [], misses: []});
-
     if(partition.misses.length === 0){
       return Promise.all(partition.hits);
     }
@@ -196,7 +195,7 @@ function validateResponse(response){
   return true;
 }
 
-// poor naming?
+// poor naming? used for updating the mappings
 function compareProperties(upload, old){
   const missing = {};
   Object.getOwnPropertyNames(upload).forEach( key => {

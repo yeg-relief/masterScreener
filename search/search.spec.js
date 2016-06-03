@@ -32,5 +32,5 @@ describe('Search class', () => {
            .then( hits => {
              assert.deepEqual(hits, []);
            })
-  })
-})
+  });
+});
