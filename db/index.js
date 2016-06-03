@@ -1,1 +1,1 @@
-// intentionally left blank until I can figure out what to export
+exports.Class = require('./DB/index').Class

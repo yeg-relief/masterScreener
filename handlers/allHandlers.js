@@ -1,9 +1,9 @@
 const
-models        = require('../models/index')
 elasticsearch = require('elasticsearch'),
 path          = require('path'),
 client        = new elasticsearch.Client({host: 'localhost:9200', log: 'info'}),
-DB            = require('../db/DB/index').Class;
+DB            = require('../db/index').Class;
+Search        = require('../search/index').Class;
 
 module.exports = {
   editor,
@@ -12,7 +12,8 @@ module.exports = {
   masterSubmit
 }
 
-const db = new DB(client);
+const db     = new DB(client);
+const search = new Search(client);
 // async function make synchronous?
 db.loadInitial();
 
@@ -21,7 +22,7 @@ function index(req, res) {
   res.status(200);
   res.sendFile(path.join(__dirname + '/../static/html/index.html'));
 }
-
+// handler for '/editor'
 function editor(req, res) {
   res.status(200);
   res.sendFile(path.join(__dirname + '/../static/html/vsaq_editor.html'));
@@ -68,22 +69,14 @@ function masterSubmit(req, res) {
     };
   }
   res.setHeader('Content-Type', 'application/json');
-  const transformedReq = models.scrubber.scrub(req.body);
-  models.screenSubmission(transformedReq, client)
-  .then(
-    resp => {
-      let descriptions = [];
-      let i = 0;
-      resp.matches.forEach( e => {
-        models.matchResponse(e._id, descriptions);
-      });
-      res.status(200);
-      const response = template(descriptions);
-      res.send(response);
-    },
-    error => {
-      res.status(500);
-      res.send({error: error});
-    }
-  )
+  search.screenSubmission(req.body)
+  .then(hits => {return db.get(hits)})
+  .then(responses => {
+    res.status(200);
+    res.send(template(responses))
+  }, error => {
+    res.status(500);
+    console.log(error);
+    res.send({error: error})
+  })
 }

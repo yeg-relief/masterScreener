@@ -25,7 +25,7 @@ function deleteIndex(elasticClient, indexName){
 }
 
 function initIndex(elasticClient, indexName, mappings){
-  if (typeof mappings === 'undefined'){
+  if (mappings === undefined){
     return elasticClient.indices.create({
       index: indexName
     });

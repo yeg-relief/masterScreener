@@ -2,7 +2,7 @@ exports.items = {
   items: [
     {
       type: "info",
-      id: "AdultHealthBenefit",
+      id: "adult_health_benefit_c",
       text:`
             <div class="response deactivated">
               <b>Alberta Adult Health Benefit</b>
@@ -13,7 +13,88 @@ exports.items = {
     },
     {
       type: "info",
-      id: "ChildHealthBenefit",
+      id: "adult_health_benefit_s",
+      text:`
+            <div class="response deactivated">
+              <b>Alberta Adult Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html" class="not-active">
+                  No More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_s1",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_s2",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_s3",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_s4",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_c1",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_c2",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_c3",
+      text:`
+            <div class="response">
+              <b>Alberta Child Health Benefit</b>
+              <br>
+                <a href="http://www.humanservices.alberta.ca/financial-support/2076.html">More Details</a>
+            </div>`
+    },
+    {
+      type: "info",
+      id: "child_health_benefit_c4",
       text:`
             <div class="response">
               <b>Alberta Child Health Benefit</b>
