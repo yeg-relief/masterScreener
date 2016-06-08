@@ -17,7 +17,7 @@ const ajaxTemplate = reqBody => {
   }
 }
 
-export default function() {
+export default function(questionnaireEvDispatcher) {
   const dom = DOM();
   const submit = Observable.fromEvent(dom.submitBtn, 'click')
                  .map(click => {return vsaq.qpageObject_.questionnaire.getValuesAsJson()})
@@ -26,10 +26,15 @@ export default function() {
                    return Observable.ajax(settings);
                  });
 
-  const returnToMaster = Observable.fromEvent(dom.returnBtn, 'click')
+  const returnToMaster = Observable.fromEvent(dom.returnBtn, 'click');
 
+  const questionnaire = Observable.fromEvent(questionnaireEvDispatcher, 'change', args =>{
+    return args.changedValues;
+  })
+  console.log(questionnaire);
   return {
     submit,
-    returnToMaster
+    returnToMaster,
+    questionnaire
   }
 }

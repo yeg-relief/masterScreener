@@ -9,12 +9,44 @@ export default function(){
     });
   }
 
-  const toggleUiBtns = function(){
+  const toggleUiBtns = () => {
     toggleButtons(dom.masterBtns);
     toggleButtons(dom.resultBtns);
   }
 
+  const buildBlacklist = () => {
+    const set = new Set();
+    set.add('scheduleNextUpdate');
+    set.add('saveTimeout');
+    set.add('nextUpdateAttemptIn');
+    set.add('changes');
+    set.add('sendUpdate');
+    set.add('isReadOnly');
+    return set;
+  }
+
+  const proxyQuestionnaire = () => {
+    const blackList = buildBlacklist();
+    const handler = {
+      get: (target, propKey, receiver) => {
+        if(!blackList.has(propKey)){
+          console.log('GET '+propKey);
+        }
+        return Reflect.get(target, propKey, receiver);
+      },
+      set: (target, propKey, value, receiver) => {
+        if(!blackList.has(propKey)){
+          console.log('SET '+propKey+'='+value);
+        }
+        return Reflect.set(target, propKey, value, receiver);
+      }
+    }
+
+    return new Proxy(vsaq.qpageObject_, handler);
+  }
+
   return{
-    toggleUiBtns
+    toggleUiBtns,
+    proxyQuestionnaire
   }
 }

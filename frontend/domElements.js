@@ -6,6 +6,10 @@ export default () => {
   masterBtns = [submitBtn, clearBtn],
   resultBtns = [returnBtn];
 
+  const getInputs = () => {
+    
+  }
+
   return {
     submitBtn,
     clearBtn,

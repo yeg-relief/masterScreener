@@ -29,6 +29,11 @@ export default function(store){
           utils.toggleUiBtns();
         }
       )
+    },
+    questionnaire: questionnaire$ => {
+      return questionnaire$.subscribe(
+        x => console.log(x)
+      )
     }
   }
 }
