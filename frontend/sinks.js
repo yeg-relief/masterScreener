@@ -29,9 +29,16 @@ export default function(questionnaireEvDispatcher) {
   const returnToMaster = Observable.fromEvent(dom.returnBtn, 'click');
 
   const questionnaire = Observable.fromEvent(questionnaireEvDispatcher, 'change', args =>{
-    return args.changedValues;
+    const change = args.changedValues,
+          items  = args.currentTarget.items_;
+    const reducedItems = Object.keys(change).reduce( (keptItems, key) => {
+                            keptItems[key] = items[key];
+                            return keptItems;
+                          }, {});
+
+
+    return {change, reducedItems};
   })
-  console.log(questionnaire);
   return {
     submit,
     returnToMaster,

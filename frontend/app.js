@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resolve(vsaq.qpageObject_.loadQuestionnaire("masterScreener"));
   })
   load.then( () => {
+    console.log(vsaq.qpageObject_.questionnaire);
     run(vsaq.qpageObject_.questionnaire);
   })
 

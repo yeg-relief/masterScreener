@@ -45,8 +45,19 @@ export default function(){
     return new Proxy(vsaq.qpageObject_, handler);
   }
 
+  const disableSubmit = () => {
+    dom.submitBtn.disabled = true;
+    
+  }
+
+  const enableSubmit = () => {
+    dom.submitBtn.disabled = false;
+  }
+
   return{
     toggleUiBtns,
-    proxyQuestionnaire
+    proxyQuestionnaire,
+    enableSubmit,
+    disableSubmit
   }
 }
