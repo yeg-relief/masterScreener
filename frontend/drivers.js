@@ -1,13 +1,14 @@
 import {Observable} from 'rxjs/Observable';
 import Utils from './utils';
 
-export default function(store){
+// HERE BE LAND OF SIDE EFFECTS
+export default function(state){
   const utils = Utils();
   return{
     submit: submit$ => {
       return submit$.subscribe(
         masterResponse => {
-          store.set('masterTemplate', vsaq.qpageObject_.questionnaire.getTemplate());
+          state.set('masterTemplate', vsaq.qpageObject_.questionnaire.getTemplate());
           vsaq.qpageObject_.questionnaire.setTemplate(masterResponse);
           vsaq.qpageObject_.questionnaire.render();
           utils.toggleUiBtns();
@@ -17,10 +18,7 @@ export default function(store){
     returnToMaster: return$ => {
       return return$.subscribe(
         () => {
-          if(!store.has('masterTemplate')){
-            throw new Error('Can not find masterTemplate in memory.')
-          }
-          vsaq.qpageObject_.questionnaire.setTemplate(store.get('masterTemplate'));
+          vsaq.qpageObject_.questionnaire.setTemplate(state.get('masterTemplate'));
           const storageData = vsaq.qpageObject_.readStorage_();
           if (storageData) {
             vsaq.qpageObject_.questionnaire.setValues(goog.json.parse(storageData));
@@ -33,79 +31,108 @@ export default function(store){
     questionnaire: questionnaire$ => {
       return questionnaire$.subscribe(
         content => {
-          const lineItems = gatherLineItems(content.reducedItems);
-          if(lineItems.length > 0){
-            lineItems.map(item => {
-              if(!validateLineItem(content.change[item.id])){
-                const pElem = getLineItemP(item);
-                item.textBox_.style.border = '1px dotted red';
-                pElem.innerHTML = 'this input only accepts numbers';
-                utils.disableSubmit();
-              } else {
-                const pElem = getLineItemP(item);
-                item.textBox_.style.border = '';
-                pElem.innerHTML = '';
-                utils.enableSubmit();
+          Object.keys(content.reducedItems).map( item => {
+            if(content.reducedItems[item] instanceof vsaq.questionnaire.items.LineItem){
+              verifyContent(content.change[item], content.reducedItems[item], state, utils);
+            } else if(content.reducedItems[item] instanceof vsaq.questionnaire.items.RadioItem){
+              if(content.change[item] === ""){
+                clearChildren(content.change[item], content.reducedItems[item], state, utils);
               }
-            })
-          } else {
-            const radioItems = gatherRadioItems(content.reducedItems);
-            if(radioItems.length > 0){
-              radioItems.map(item => {
-                Object.keys(vsaq.qpageObject_.questionnaire.getItems()).map( qitem => {
-                  if(vsaq.qpageObject_.questionnaire.items_[qitem].conditions === item.id){
-                    //console.log(vsaq.qpageObject_.questionnaire.items_[qitem].value);
-                    const dependentItem = vsaq.qpageObject_.questionnaire.items_[qitem];
-                    if(dependentItem.type === 'line'){
-                      dependentItem.setInternalValue("");
-                      vsaq.qpageObject_.questionnaire.values_[qitem] = "";
-                    } else if(dependentItem.type === 'radiogroup'){
-                      dependentItem.containerItems.forEach( radioItem => {
-                        radioItem.radioButton.checked = false;
-                        vsaq.qpageObject_.questionnaire.values_[qitem] = "";
-                      })
-                    }
-
-                  }
-                })
-              })
             }
-          }
+          });
         }
       )
     }
   }
 }
 
-function getLineItemP(lineItem){
-  const maybeP = lineItem.container.children[2];
-  if(maybeP.nodeName.toLowerCase() === "p"){
-    return maybeP;
+function clearChildren(change, item, state, utils){
+  const children = state.findChildren(item.id);
+  const newChanges = {};
+  children.map( child => {
+    const childItem = vsaq.qpageObject_.questionnaire.items_[child];
+    if(childItem instanceof vsaq.questionnaire.items.LineItem){
+      Object.assign(newChanges, clearLine(childItem, state, utils));
+    } else if(childItem instanceof vsaq.questionnaire.items.RadiogroupItem){
+      Object.assign(newChanges, clearRadio(childItem));
+    }
+  })
+  console.log(newChanges);
+  updateStorage(newChanges);
+}
+
+// not working
+function clearRadio(item){
+  let changes = {};
+  const id = item.id;
+  item.containerItems.map( radio => {
+    radio.radioButton.checked = false;
+    changes[id] = "";
+  })
+  return changes;
+}
+
+
+
+function clearLine(item, state, utils){
+  if(item.getValue() === ""){
+    return;
   }
-  const children = lineItem.container.children;
-  return chilren.filter(child => {return child.nodeName.toLowerCase() === "p";})
+  item.setInternalValue("");
+  state.set(item.id, 'valid');
+  toggleHighlight(item, state);
+  if(state.valid() && !state.get('submitEnabled')){
+    utils.enableSubmit();
+    state.set('submitEnabled', true);
+  }
+  const id = item.id;
+  const changes = {};
+  changes[id] = "";
+  return changes;
 }
 
-function gatherRadioItems(reducedItems){
-  return Object.keys(reducedItems).reduce( (radioItems, currKey) => {
-    if(reducedItems[currKey].type === 'radio'){
-      radioItems.push(reducedItems[currKey]);
-    }
-    return radioItems;
-  }, [])
-}
 
-
-function gatherLineItems(reducedItems){
-  return Object.keys(reducedItems).reduce( (lineItems, currKey) => {
-    if(reducedItems[currKey].type === 'line'){
-      lineItems.push(reducedItems[currKey]);
-    }
-    return lineItems;
-  }, [])
-}
-// lineItemValue is the value for a change
-function validateLineItem(lineItemValue){
+// lineItems should only take in numbers
+function verifyContent(change, item, state, utils){
   // only digits
-  return /^[0-9]*$/.test(lineItemValue);
+  if(/^[0-9]*$/.test(change)){
+    state.set(item.id, 'valid');
+    toggleHighlight(item, state);
+    if(state.valid() && !state.get('submitEnabled')){
+      utils.enableSubmit();
+      state.set('submitEnabled', true);
+    }
+  } else {
+    state.set(item.id, 'invalid');
+    toggleHighlight(item, state);
+    if(state.get('submitEnabled')){
+      utils.disableSubmit();
+      state.set('submitEnabled', false);
+    }
+  }
 }
+
+function toggleHighlight(item, state){
+  const pElem = item.container.children[2];
+  if(state.get(item.id) === 'valid'){
+    item.textBox_.style.border = '';
+    pElem.innerHTML = '';
+  } else if(state.get(item.id) === 'invalid'){
+    item.textBox_.style.border = '1px dotted red';
+    pElem.innerHTML = `<strong>${item.id} should only be digits.</strong>`;
+  }
+}
+
+function updateStorage(data) {
+  var newStorageData = null;
+  var storageData = vsaq.qpageObject_.readStorage_();
+  if (storageData) {
+    storageData = goog.json.parse(storageData);
+    goog.object.extend(storageData, data);
+    newStorageData = goog.json.serialize(storageData);
+  } else {
+    newStorageData = goog.json.serialize(data);
+  }
+  console.log(newStorageData);
+  vsaq.qpageObject_.storage.set('masterScreener', newStorageData);
+};

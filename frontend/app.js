@@ -1,5 +1,6 @@
 import Sinks from './sinks'
 import Drivers from './drivers'
+import State from './state'
 
 document.addEventListener("DOMContentLoaded", () => {
   const load = new Promise( resolve => {
@@ -9,16 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
     resolve(vsaq.qpageObject_.loadQuestionnaire("masterScreener"));
   })
   load.then( () => {
-    console.log(vsaq.qpageObject_.questionnaire);
-    run(vsaq.qpageObject_.questionnaire);
+    // sometimes values are not loaded when this runs... try setTimeout hack
+    run(vsaq.qpageObject_.questionnaire)
   })
 
 });
 
 function run(questionnaireEvDispatcher){
+  const state   = State();
   const sinks   = Sinks(questionnaireEvDispatcher),
-        drivers = Drivers(new Map());
-
+        drivers = Drivers(state);
   Object.keys(drivers).forEach( key => {
     drivers[key](sinks[key]);
   })
