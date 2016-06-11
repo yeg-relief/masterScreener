@@ -63,7 +63,7 @@ function initResponses(elasticClient, indexName, typeName) {
  */
 function initDB() {
   const
-  client              = new elasticsearch.Client({host: 'localhost:9200', log: 'info'}),
+  client              = new elasticsearch.Client({host: 'localhost:9200', log: 'warn'}),
   master              = indices.items[0], //percolator index
   response            = indices.items[1], //response items
   masterQuestionnaire = indices.items[2]; //master questionnaire
